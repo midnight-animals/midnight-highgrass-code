@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { SimulationNodeDatum } from 'd3';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const width = 600;
 const height = 400;
@@ -11,6 +11,11 @@ const FORCE_STRENGTH_STEP = 0.5;
 const FORCE_COLLIDE_INITIAL = 0;
 const FORCE_COLLIDE_BOUNDARY = 50;
 const FORCE_COLLIDE_STEP = 1;
+
+const ticksPerRender = 3;
+// const ALPHA_THRESHOLD = 0.0000000001;
+// const ALPHA_THRESHOLD = 0.000001;
+const ALPHA_THRESHOLD = 0.01;
 
 interface D3Node extends SimulationNodeDatum {
   radius: number;
@@ -36,7 +41,7 @@ export const D3ForceSimulation: React.FC = (): JSX.Element => {
   const [forceCollide, setForceCollide] = useState(FORCE_COLLIDE_INITIAL);
 
   const ticked = () => {
-    console.log('--');
+    // console.log('--');
     const svgElement = d3.select(ref.current);
     svgElement
       .selectAll('circle')
@@ -50,6 +55,7 @@ export const D3ForceSimulation: React.FC = (): JSX.Element => {
   };
 
   const simulation = useMemo(() => {
+    console.log('new siulmation');
     return d3
       .forceSimulation(nodes)
       .force('center', d3.forceCenter(centerForce, height / 2)) // Use centerForce state
@@ -59,8 +65,8 @@ export const D3ForceSimulation: React.FC = (): JSX.Element => {
           // return 5;
           return (d as D3Node).radius;
         }),
-      )
-      .on('tick', ticked);
+      );
+    // .on('tick', ticked);
   }, [nodes, isForceCollideActive, centerForce, forceStrength, forceCollide]);
   // }, []);
   const simulationRef = useRef(simulation);
@@ -83,17 +89,34 @@ export const D3ForceSimulation: React.FC = (): JSX.Element => {
     };
   }, [simulation]); // Run this effect whenever the simulation changes
 
-  const handleForceChange = () => {
+  function startTicking() {
+    requestAnimationFrame(function render() {
+      for (let i = 0; i < ticksPerRender; i++) {
+        simulationRef.current.tick();
+      }
+
+      ticked();
+
+      if (simulationRef.current.alpha() > ALPHA_THRESHOLD) {
+        requestAnimationFrame(render);
+      }
+    });
+  }
+
+  const handleForceChange = useCallback(() => {
     resetNodes();
-    simulation.nodes(nodes);
+    simulationRef.current.nodes(nodes);
     if (isForceCollideActive) {
       console.log('1: Null');
-      simulation.force('charge', null);
-      simulation.force('collision', null);
+      simulationRef.current.force('charge', null);
+      simulationRef.current.force('collision', null);
     } else {
       console.log('2: Force');
-      simulation.force('charge', d3.forceManyBody().strength(forceStrength));
-      simulation
+      simulationRef.current.force(
+        'charge',
+        d3.forceManyBody().strength(forceStrength),
+      );
+      simulationRef.current
         .force('center', d3.forceCenter(centerForce, height / 2)) // Use centerForce state
         .force(
           'collision',
@@ -103,12 +126,18 @@ export const D3ForceSimulation: React.FC = (): JSX.Element => {
           }),
         );
     }
-    simulation.restart();
-  };
+    startTicking();
+  }, [centerForce, forceCollide, forceStrength, isForceCollideActive]);
 
   useEffect(() => {
     handleForceChange();
-  }, [isForceCollideActive, centerForce, forceStrength, forceCollide]);
+  }, [
+    isForceCollideActive,
+    centerForce,
+    forceStrength,
+    forceCollide,
+    handleForceChange,
+  ]);
 
   return (
     <>
