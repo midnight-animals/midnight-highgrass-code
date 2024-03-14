@@ -1,12 +1,12 @@
 import React from 'react';
 import './App.scss';
-import { SigmaLearning } from './modules/sigma/sigma-learning';
-import { SigmaDemo } from './modules/sigma/sigma-demo/SigmaDemo';
+import { D3Learning } from './modules/d3/D3Learning';
 
 function App() {
   return (
     <div className="App">
-      <SigmaDemo />
+      <D3Learning />
+      {/* <SigmaDemo /> */}
       {/* <DragNdrop />
       <LayoutFA2 />
       <DisplayGraph /> */}

@@ -1,0 +1,167 @@
+import * as d3 from 'd3';
+import { SimulationNodeDatum } from 'd3';
+import { useEffect, useMemo, useRef, useState } from 'react';
+
+const width = 600;
+const height = 400;
+const numNodes = 100;
+const FORCE_STRENGTH_INITIAL = 1;
+const FORCE_STRENGTH_BOUNDARY = 10;
+const FORCE_STRENGTH_STEP = 0.5;
+const FORCE_COLLIDE_INITIAL = 0;
+const FORCE_COLLIDE_BOUNDARY = 50;
+const FORCE_COLLIDE_STEP = 1;
+
+interface D3Node extends SimulationNodeDatum {
+  radius: number;
+  x: number;
+  y: number;
+}
+
+let nodes = d3.range(numNodes).map(function () {
+  return { radius: Math.random() * 25 };
+}) as SimulationNodeDatum[];
+
+function resetNodes() {
+  nodes = d3.range(numNodes).map(function () {
+    return { radius: Math.random() * 25 };
+  }) as SimulationNodeDatum[];
+}
+
+export const D3ForceSimulation: React.FC = (): JSX.Element => {
+  const ref = useRef<SVGSVGElement>(null);
+  const [isForceCollideActive, setIsForceCollideActive] = useState(false);
+  const [centerForce, setCenterForce] = useState(width / 2); // New state for center force
+  const [forceStrength, setForceStrength] = useState(FORCE_STRENGTH_INITIAL);
+  const [forceCollide, setForceCollide] = useState(FORCE_COLLIDE_INITIAL);
+
+  const ticked = () => {
+    console.log('--');
+    const svgElement = d3.select(ref.current);
+    svgElement
+      .selectAll('circle')
+      .style('color', 'cadetblue')
+      .data(nodes)
+      .join('circle')
+      // .attr('r', (d) => 5)
+      .attr('r', (d) => (d as D3Node).radius)
+      .attr('cx', (d) => (d as D3Node).x)
+      .attr('cy', (d) => (d as D3Node).y);
+  };
+
+  const simulation = useMemo(() => {
+    return d3
+      .forceSimulation(nodes)
+      .force('center', d3.forceCenter(centerForce, height / 2)) // Use centerForce state
+      .force(
+        'collision',
+        d3.forceCollide().radius(function (d) {
+          // return 5;
+          return (d as D3Node).radius;
+        }),
+      )
+      .on('tick', ticked);
+  }, [nodes, isForceCollideActive, centerForce, forceStrength, forceCollide]);
+  // }, []);
+  const simulationRef = useRef(simulation);
+
+  useEffect(() => {
+    // Stop the previous simulation
+    if (simulationRef.current) {
+      simulationRef.current.stop();
+    }
+
+    // Start the new simulation
+    simulationRef.current = simulation;
+    // simulationRef.current.restart();
+
+    // Cleanup function to stop the simulation when the component unmounts
+    return () => {
+      if (simulationRef.current) {
+        simulationRef.current.stop();
+      }
+    };
+  }, [simulation]); // Run this effect whenever the simulation changes
+
+  const handleForceChange = () => {
+    resetNodes();
+    simulation.nodes(nodes);
+    if (isForceCollideActive) {
+      console.log('1: Null');
+      simulation.force('charge', null);
+      simulation.force('collision', null);
+    } else {
+      console.log('2: Force');
+      simulation.force('charge', d3.forceManyBody().strength(forceStrength));
+      simulation
+        .force('center', d3.forceCenter(centerForce, height / 2)) // Use centerForce state
+        .force(
+          'collision',
+          d3.forceCollide().radius(function (d) {
+            // return 5;
+            return (d as D3Node).radius + forceCollide;
+          }),
+        );
+    }
+    simulation.restart();
+  };
+
+  useEffect(() => {
+    handleForceChange();
+  }, [isForceCollideActive, centerForce, forceStrength, forceCollide]);
+
+  return (
+    <>
+      <section>
+        <svg
+          width={width}
+          height={height}
+          style={{ border: '1px solid red' }}
+          ref={ref}
+        ></svg>
+      </section>
+      <section>
+        isForceCollideActive
+        <input
+          type="checkbox"
+          checked={isForceCollideActive}
+          onChange={() => {
+            setIsForceCollideActive(!isForceCollideActive);
+          }}
+        />
+        <div>
+          Force center
+          <input
+            type="range"
+            min="0"
+            max={width}
+            value={centerForce}
+            onChange={(event) => setCenterForce(Number(event.target.value))}
+          />
+        </div>
+        <div>
+          Force Strength
+          <input
+            type="number"
+            step={FORCE_STRENGTH_STEP}
+            min={-FORCE_STRENGTH_BOUNDARY}
+            max={FORCE_STRENGTH_BOUNDARY}
+            value={forceStrength}
+            onChange={(event) => setForceStrength(Number(event.target.value))}
+          />
+        </div>
+        <div>
+          Force Collide
+          <input
+            type="number"
+            step={FORCE_COLLIDE_STEP}
+            min={-FORCE_COLLIDE_BOUNDARY}
+            max={FORCE_COLLIDE_BOUNDARY}
+            value={forceCollide}
+            onChange={(event) => setForceCollide(Number(event.target.value))}
+          />
+        </div>
+      </section>
+    </>
+  );
+};
