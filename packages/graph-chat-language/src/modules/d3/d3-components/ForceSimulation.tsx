@@ -11,6 +11,9 @@ const FORCE_STRENGTH_STEP = 0.5;
 const FORCE_COLLIDE_INITIAL = 0;
 const FORCE_COLLIDE_BOUNDARY = 50;
 const FORCE_COLLIDE_STEP = 1;
+const NODE_RADIUS_INITIAL = 0;
+const NODE_RADIUS_BOUNDARY = 20;
+const NODE_RADIUS_STEP = 1;
 
 const ticksPerRender = 3;
 // const ALPHA_THRESHOLD = 0.0000000001;
@@ -39,6 +42,7 @@ export const D3ForceSimulation: React.FC = (): JSX.Element => {
   const [centerForce, setCenterForce] = useState(width / 2); // New state for center force
   const [forceStrength, setForceStrength] = useState(FORCE_STRENGTH_INITIAL);
   const [forceCollide, setForceCollide] = useState(FORCE_COLLIDE_INITIAL);
+  const [nodeRadius, setNodeRadius] = useState(NODE_RADIUS_INITIAL);
 
   const ticked = () => {
     // console.log('--');
@@ -49,13 +53,12 @@ export const D3ForceSimulation: React.FC = (): JSX.Element => {
       .data(nodes)
       .join('circle')
       // .attr('r', (d) => 5)
-      .attr('r', (d) => (d as D3Node).radius)
+      .attr('r', (d) => (d as D3Node).radius + nodeRadius)
       .attr('cx', (d) => (d as D3Node).x)
       .attr('cy', (d) => (d as D3Node).y);
   };
 
   const simulation = useMemo(() => {
-    console.log('new siulmation');
     return d3
       .forceSimulation(nodes)
       .force('center', d3.forceCenter(centerForce, height / 2)) // Use centerForce state
@@ -63,12 +66,17 @@ export const D3ForceSimulation: React.FC = (): JSX.Element => {
         'collision',
         d3.forceCollide().radius(function (d) {
           // return 5;
-          return (d as D3Node).radius;
+          return (d as D3Node).radius + nodeRadius;
         }),
       );
-    // .on('tick', ticked);
-  }, [nodes, isForceCollideActive, centerForce, forceStrength, forceCollide]);
-  // }, []);
+  }, [
+    nodes,
+    isForceCollideActive,
+    centerForce,
+    forceStrength,
+    forceCollide,
+    nodeRadius,
+  ]);
   const simulationRef = useRef(simulation);
 
   useEffect(() => {
@@ -79,7 +87,6 @@ export const D3ForceSimulation: React.FC = (): JSX.Element => {
 
     // Start the new simulation
     simulationRef.current = simulation;
-    // simulationRef.current.restart();
 
     // Cleanup function to stop the simulation when the component unmounts
     return () => {
@@ -107,11 +114,9 @@ export const D3ForceSimulation: React.FC = (): JSX.Element => {
     resetNodes();
     simulationRef.current.nodes(nodes);
     if (isForceCollideActive) {
-      console.log('1: Null');
       simulationRef.current.force('charge', null);
       simulationRef.current.force('collision', null);
     } else {
-      console.log('2: Force');
       simulationRef.current.force(
         'charge',
         d3.forceManyBody().strength(forceStrength),
@@ -127,7 +132,13 @@ export const D3ForceSimulation: React.FC = (): JSX.Element => {
         );
     }
     startTicking();
-  }, [centerForce, forceCollide, forceStrength, isForceCollideActive]);
+  }, [
+    centerForce,
+    forceCollide,
+    forceStrength,
+    isForceCollideActive,
+    nodeRadius,
+  ]);
 
   useEffect(() => {
     handleForceChange();
@@ -188,6 +199,17 @@ export const D3ForceSimulation: React.FC = (): JSX.Element => {
             max={FORCE_COLLIDE_BOUNDARY}
             value={forceCollide}
             onChange={(event) => setForceCollide(Number(event.target.value))}
+          />
+        </div>
+        <div>
+          Radius
+          <input
+            type="number"
+            step={NODE_RADIUS_STEP}
+            min={-NODE_RADIUS_BOUNDARY}
+            max={NODE_RADIUS_BOUNDARY}
+            value={nodeRadius}
+            onChange={(event) => setNodeRadius(Number(event.target.value))}
           />
         </div>
       </section>
