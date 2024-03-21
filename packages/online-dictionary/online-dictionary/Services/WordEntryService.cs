@@ -19,7 +19,7 @@ namespace online_dictionary.Services
 		private readonly IMongoClient _mongoClient;
 		public WordEntryService(IOptions<MongoDBSettings> options) {
             _mongoClient = new MongoClient(options.Value.ConnectionURI);
-            IMongoDatabase database = _mongoClient.GetDatabase("online_dictionary");
+            IMongoDatabase database = _mongoClient.GetDatabase("online_dictionary_fake");
             _wordEntriesCollection = database.GetCollection<WordEntry>("word_entries");
         }
         public async Task<bool> IsMongoDBConnected()

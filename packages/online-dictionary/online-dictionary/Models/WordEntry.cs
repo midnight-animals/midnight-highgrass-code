@@ -8,6 +8,6 @@ namespace online_dictionary.Models
         [BsonId]
         [BsonRepresentation(BsonType.String)]
         public string Word { get; set; }
-        public List<Interpretation> Interpretations { get; set; }
+        public List<Interpretation>? Interpretations { get; set; } = null!;
     }
 }

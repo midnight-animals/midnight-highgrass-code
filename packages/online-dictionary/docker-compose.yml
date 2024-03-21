@@ -1,6 +1,14 @@
-version: '0.0'
+version: '3.4'
 
 services:
+  online-dictionary:
+    image: ${DOCKER_REGISTRY-}onlinedictionary
+    build:
+      context: .
+      dockerfile: online-dictionary/Dockerfile
+    networks:
+      - mongodb_network
+
   mongodb:
     image: mongo:latest
     container_name: mongodb
@@ -13,6 +21,7 @@ services:
 
 networks:
   mongodb_network:
+    driver: bridge
 
 volumes:
   mongodb_data:

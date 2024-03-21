@@ -2,10 +2,10 @@
 {
     public class Interpretation
     {
-        public string Meaning { get; set; }
-        public string Type { get; set; }
-        public string Complexity { get; set; }
-        public List<string> Examples { get; set; }
-        public List<string> Synonyms { get; set; }
+        public string Meaning { get; set; } = null!;
+        public string Type { get; set; } = null!;
+        public string Complexity { get; set; } = null!;
+        public List<string>? Examples { get; set; } = null!;
+		public List<string>? Synonyms { get; set; } = null!;
     }
 }
