@@ -1,0 +1,23 @@
+﻿@page
+@model online_dictionary.Pages.StatusModel
+@{
+	ViewData["Title"] = "App Status";
+}
+
+<h1>Status Page</h1>
+
+<h2>Application Status: @Model.AppStatus</h2>
+<h2>MongoDB Connection Status: <span id="dbStatus">@Model.DBStatus</span></h2>
+
+<!-- Script to fetch updated database status -->
+<script>
+    // Function to fetch updated database status
+    async function fetchDbStatus() {
+        const response = await fetch('/api/status');
+        const data = await response.json();
+        document.getElementById('dbStatus').innerText = data.databaseStatus;
+    }
+
+    // Fetch updated database status when the page loads
+    window.onload = fetchDbStatus;
+</script>
