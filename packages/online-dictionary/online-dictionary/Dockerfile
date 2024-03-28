@@ -11,6 +11,8 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["online-dictionary/online-dictionary.csproj", "online-dictionary/"]
 RUN dotnet restore "./online-dictionary/online-dictionary.csproj"
+ENV ASPNETCORE_HTTP_PORTS 8080
+ENV ASPNETCORE_HTTPS_PORTS 8081
 COPY . .
 WORKDIR "/src/online-dictionary"
 RUN dotnet build "./online-dictionary.csproj" -c $BUILD_CONFIGURATION -o /app/build
