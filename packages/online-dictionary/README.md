@@ -15,7 +15,7 @@ To run the application locally, follow these steps:
 ```
 git clone https://github.com/midnight-animals/midnight-highgrass-code.git
 ```
-2. Navigate to the `online-dictionary` branch
+2. Switch to the `online-dictionary` branch
 ```
 git checkout online-dictionary
 ```
