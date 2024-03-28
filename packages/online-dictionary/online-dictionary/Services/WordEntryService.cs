@@ -9,6 +9,8 @@ namespace online_dictionary.Services
 		Task<bool> IsMongoDBConnected();
 		Task<WordEntry> GetWordEntryAsync(string word);
         Task<IEnumerable<WordEntry>> GetAllWordEntriesAsync();
+        Task<IEnumerable<WordEntry>> GetPaginatedWordEntriesAsync(int page, int pageSize);
+        Task<long> GetCountAsync();
         Task AddWordEntryAsync(WordEntry wordEntry);
         Task UpdateWordEntryAsync(string word, WordEntry wordEntry);
         Task DeleteWordEntryAsync(string word);
@@ -16,8 +18,8 @@ namespace online_dictionary.Services
     public class WordEntryService : IWordEntryService
     {
         private readonly IMongoCollection<WordEntry> _wordEntriesCollection;
-		private readonly IMongoClient _mongoClient;
-		public WordEntryService(IOptions<MongoDBSettings> options) {
+        private readonly IMongoClient _mongoClient;
+        public WordEntryService(IOptions<MongoDBSettings> options) {
             _mongoClient = new MongoClient(options.Value.ConnectionURI);
             IMongoDatabase database = _mongoClient.GetDatabase("online_dictionary_fake");
             _wordEntriesCollection = database.GetCollection<WordEntry>("word_entries");
@@ -42,6 +44,23 @@ namespace online_dictionary.Services
         public async Task<IEnumerable<WordEntry>> GetAllWordEntriesAsync()
         {
             return await _wordEntriesCollection.Find(_ => true).ToListAsync();
+        }
+
+        public async Task<IEnumerable<WordEntry>> GetPaginatedWordEntriesAsync(int page, int pageSize)
+        {
+            var skip = (page - 1) * pageSize;
+            var wordEntries = await _wordEntriesCollection.Find(entry => true)
+                .Skip(skip)
+                .Limit(pageSize)
+                .ToListAsync();
+            var all = await GetAllWordEntriesAsync();
+            return wordEntries;
+        }
+
+        public async Task<long> GetCountAsync()
+        {
+            var count = await _wordEntriesCollection.CountDocumentsAsync(FilterDefinition<WordEntry>.Empty);
+            return count;
         }
 
         public async Task AddWordEntryAsync(WordEntry wordEntry)

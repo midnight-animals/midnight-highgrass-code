@@ -19,12 +19,13 @@ namespace online_dictionary.Seeder
 			_mongoClient = new MongoClient(options.Value.ConnectionURI);
 			IMongoDatabase database = _mongoClient.GetDatabase("online_dictionary_fake");
 			_wordEntryFakeCollection = database.GetCollection<WordEntry>("word_entries");
-			Seed(100);
 		}
 		public async Task Seed(int count)
 		{
 			try
 			{
+                // Clean up old fake data
+                await _wordEntryFakeCollection.DeleteManyAsync(FilterDefinition<WordEntry>.Empty);
 				await _wordEntryFakeCollection.InsertManyAsync(GenerateWordEntries(count));
 				Console.WriteLine("Successfully added " + count + " fake word entries to the test database");
 			} catch (Exception ex)
@@ -35,8 +36,19 @@ namespace online_dictionary.Seeder
 		}
 		public List<WordEntry> GenerateWordEntries(int count)
 		{
+			//To-do: learn how to generate only unique words here.
+			var wordList = new HashSet<string>();
 			var faker = new Faker<WordEntry>()
-			.RuleFor(w => w.Word, f => f.Lorem.Word())
+			.RuleFor(w => w.Word, f =>
+            {
+                string word;
+                do
+                {
+                    word = f.Lorem.Word();
+                } while (wordList.Contains(word)); // Check if the word is already generated
+                wordList.Add(word); // Add the word to the HashSet
+                return word;
+            })
 			.RuleFor(w => w.Interpretations, f => GenerateInterpretations(f, f.Random.Number(1, 5)));
 
 			return faker.Generate(count);
