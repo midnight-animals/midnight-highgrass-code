@@ -21,7 +21,7 @@ git checkout online-dictionary
 ```
 3. Navigate to the `online-dictionary` folder in the terminal:
 ```
-cd online-dictionary
+cd packages/online-dictionary
 ```
 4. Run Docker Compose to build and start the application:
 ```
