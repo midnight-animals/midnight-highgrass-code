@@ -26,7 +26,9 @@ cd packages/online-dictionary
 4. Run Docker Compose to build and start the application:
 ```
 docker-compose up
+# or
+sudo docker compose -p online-dictionary -f ./docker-compose.yml up -d
 ```
-5. Access the application in your web browser 
+5. Access the application in your web browser
 http://localhost:8080
 

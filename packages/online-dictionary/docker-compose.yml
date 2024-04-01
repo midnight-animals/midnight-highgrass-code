@@ -1,4 +1,5 @@
 version: '3.4'
+name: online-dictionary
 
 services:
   online-dictionary:
