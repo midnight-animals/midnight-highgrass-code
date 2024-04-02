@@ -29,5 +29,11 @@ namespace online_dictionary.Controllers
                 totalPage = totalPage
             });
         }
+        [HttpGet("only-words")]
+        public async Task<IActionResult> GetAllOnlyWords()
+        {
+            var words = await _wordEntryService.GetAllOnlyWordsAsync();
+            return Ok(words);
+        }
     }
 }
