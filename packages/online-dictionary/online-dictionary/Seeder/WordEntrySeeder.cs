@@ -80,6 +80,6 @@ namespace online_dictionary.Seeder
 	}
 	public enum Type
 	{
-		noun, verb, adj, adverb
+		Noun, Verb, Adjective, Adverb
 	}
 }
