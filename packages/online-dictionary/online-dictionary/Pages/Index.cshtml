@@ -1,0 +1,13 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<h1>Welcome to Your Dictionary App!</h1>
+<p>Start exploring words and their definitions.</p>
+
+<!-- Reference _SearchSection.cshtml here-->
+<partial name="Shared/_SearchSection.cshtml" />
+<hr/>
+<partial name="Shared/_ListWordSection.cshtml"/>

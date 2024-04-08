@@ -1,0 +1,40 @@
+version: '3.4'
+name: online-dictionary
+
+services:
+  # nginx:
+  #   image: nginx:stable-alpine
+  #   volumes:
+  #   - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  #   port:
+  #   - 80:80
+  #   restart: unless-stopped
+  #   depends_on:
+  #   - online-dictionary
+  #   networks:
+  #   - mongodb_network
+
+  online-dictionary:
+    image: ${DOCKER_REGISTRY-}onlinedictionary
+    build:
+      context: .
+      dockerfile: online-dictionary/Dockerfile
+    networks:
+      - mongodb_network
+
+  mongodb:
+    image: mongo:latest
+    # container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - mongodb_network
+
+networks:
+  mongodb_network:
+    driver: bridge
+
+volumes:
+  mongodb_data:

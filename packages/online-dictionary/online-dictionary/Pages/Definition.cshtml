@@ -1,0 +1,38 @@
+﻿@page "/definition/{word}";
+@model online_dictionary.Pages.DefinitionModel
+@{
+	ViewData["Title"] = "";
+}
+
+@if (@Model.wordEntry != null) 
+{
+    <h1>Definition of @Model.wordEntry.Word</h1>
+    <ul>
+        @foreach (var interpretation in Model.wordEntry.Interpretations)
+        {
+            <li>
+                <strong>Meaning:</strong> @interpretation.Meaning<br />
+                <strong>Type:</strong> @interpretation.Type<br />
+                <strong>Complexity:</strong> @interpretation.Complexity<br />
+                <strong>Examples:</strong>
+                <ul>
+                    @foreach (var example in interpretation.Examples)
+                    {
+                        <li>@example</li>
+                    }
+                </ul>
+                <strong>Synonyms:</strong>
+                <ul>
+                    @foreach (var synonym in interpretation.Synonyms)
+                    {
+                        <li>@synonym</li>
+                    }
+                </ul>
+            </li>
+            <br/>
+        }
+    </ul>
+} else {
+	<h1> Word not found</h1>
+}
+

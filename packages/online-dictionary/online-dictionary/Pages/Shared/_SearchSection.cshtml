@@ -1,0 +1,43 @@
+﻿
+
+<div id="searchSection">
+	<input type="text" v-model="searchInput" v-on:input="search" placeholder="Search...">
+	<div v-if="words.length === 0 && searchInput !== ''">Not Word Found</div>
+	<div v-else-if="searchInput === ''">Please enter search words</div>
+	<ul v-else>
+		<li v-for="word in words" :key="word"><a v-bind:href ="'/definition/' + word">{{ word }}</a></li>
+	</ul>
+</div>
+
+<script>
+	const app = Vue.createApp({
+		data() {
+			return {
+				searchInput: '',
+				words: [],
+				allWords: [],
+			}
+		},
+		methods: {
+			search() {
+				const query = this.searchInput.trim().toLowerCase();
+				if (query === '') {
+					this.words = [];
+					return;
+				}
+				this.words = this.allWords.filter(word => word.toLowerCase().includes(query));
+			}
+		},
+		created() {
+			fetch('api/words/only-words')
+			.then(response => response.json())
+				.then(data => {
+					this.allWords = data;
+					console.log(data);
+				})
+		}
+	});
+
+	app.mount("#searchSection");
+</script>
+
