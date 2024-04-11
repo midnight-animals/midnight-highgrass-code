@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using online_dictionary.Models;
 using online_dictionary.Services;
 
@@ -29,11 +31,24 @@ namespace online_dictionary.Controllers
                 totalPage = totalPage
             });
         }
-        [HttpGet("only-words")]
-        public async Task<IActionResult> GetAllOnlyWords()
+        //[HttpGet("only-words")]
+        //public async Task<IActionResult> GetAllOnlyWords()
+        //{
+        //    var words = await _wordEntryService.GetAllOnlyWordsAsync();
+        //    return Ok(words);
+        //}
+        [HttpGet("search")]
+        public async Task<IActionResult> Search(string query)
         {
-            var words = await _wordEntryService.GetAllOnlyWordsAsync();
-            return Ok(words);
+            try
+            {
+                var searchResult = await _wordEntryService.Search(query);
+                return Ok(searchResult);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

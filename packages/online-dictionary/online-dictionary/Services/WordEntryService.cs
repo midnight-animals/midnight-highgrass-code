@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using online_dictionary.Models;
 
@@ -12,8 +13,9 @@ namespace online_dictionary.Services
         Task<IEnumerable<WordEntry>> GetAllWordEntriesAsync();
         Task<IEnumerable<WordEntry>> GetPaginatedWordEntriesAsync(int page, int pageSize);
         Task<List<string>> GetAllOnlyWordsAsync();
+        Task<List<string>> Search(string query);
 
-		Task<long> GetCountAsync();
+        Task<long> GetCountAsync();
         Task AddWordEntryAsync(WordEntry wordEntry);
         Task UpdateWordEntryAsync(string word, WordEntry wordEntry);
         Task DeleteWordEntryAsync(string word);
@@ -64,7 +66,6 @@ namespace online_dictionary.Services
             return words;
         }
 
-
 		public async Task<IEnumerable<WordEntry>> GetPaginatedWordEntriesAsync(int page, int pageSize)
         {
             var skip = (page - 1) * pageSize;
@@ -80,6 +81,23 @@ namespace online_dictionary.Services
         {
             var count = await _wordEntriesCollection.CountDocumentsAsync(FilterDefinition<WordEntry>.Empty);
             return count;
+        }
+
+        public async Task<List<string>> Search(string query)
+        {
+            var filter = Builders<WordEntry>.Filter.Regex(x => x.Word, new BsonRegularExpression(query, "i"));
+            var projection = Builders<WordEntry>.Projection.Include(w => w.Word);
+            var cursor = await _wordEntriesCollection.Find(filter)
+                .Project(projection)
+                .Limit(10)
+                .ToCursorAsync();
+
+            var words = new List<string>();
+            await cursor.ForEachAsync(document =>
+            {
+                words.Add(document.GetValue("_id").AsString);
+            });
+            return words;
         }
 
         public async Task AddWordEntryAsync(WordEntry wordEntry)

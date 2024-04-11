@@ -2,7 +2,9 @@
 
 <div id="searchSection">
 	<input type="text" v-model="searchInput" v-on:input="search" placeholder="Search...">
-	<div v-if="words.length === 0 && searchInput !== ''">Not Word Found</div>
+	<div v-if="fetching === false && words.length === 0 && searchInput !== ''">No Words Found</div>
+	<div v-if="fetching === true">...</div>
+
 	<div v-else-if="searchInput === ''">Please enter search words</div>
 	<ul v-else>
 		<li v-for="word in words" :key="word"><a v-bind:href ="'/definition/' + word">{{ word }}</a></li>
@@ -13,29 +15,44 @@
 	const app = Vue.createApp({
 		data() {
 			return {
+				fetching: false,
 				searchInput: '',
 				words: [],
 				allWords: [],
 			}
 		},
 		methods: {
-			search() {
+			async search() {
 				const query = this.searchInput.trim().toLowerCase();
 				if (query === '') {
 					this.words = [];
 					return;
 				}
-				this.words = this.allWords.filter(word => word.toLowerCase().includes(query));
+				this.words = await this.fetchSearchQuery(query);
+			},
+			async fetchSearchQuery(query) {
+				fetching = true;
+				try {
+					const response = await fetch(`api/words/search?query=${query}`);
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					}
+					const data = await response.json();
+					this.fetching = false;
+					return data;
+				} catch (error) {
+					console.error('There was a problem with your fetch operation:', error);
+				}
 			}
 		},
-		created() {
-			fetch('api/words/only-words')
-			.then(response => response.json())
-				.then(data => {
-					this.allWords = data;
-					console.log(data);
-				})
-		}
+		// created() {
+		// 	fetch('api/words/only-words')
+		// 	.then(response => response.json())
+		// 		.then(data => {
+		// 			this.allWords = data;
+		// 			console.log(data);
+		// 		})
+		// }
 	});
 
 	app.mount("#searchSection");

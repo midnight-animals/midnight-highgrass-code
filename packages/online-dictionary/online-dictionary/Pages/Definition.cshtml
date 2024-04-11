@@ -21,13 +21,7 @@
                         <li>@example</li>
                     }
                 </ul>
-                <strong>Synonyms:</strong>
-                <ul>
-                    @foreach (var synonym in interpretation.Synonyms)
-                    {
-                        <li>@synonym</li>
-                    }
-                </ul>
+                <strong>Synonyms:</strong> @interpretation.Synonyms
             </li>
             <br/>
         }
