@@ -3,24 +3,30 @@ using Bogus;
 using MongoDB.Driver;
 using online_dictionary.Services;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace online_dictionary.Seeder
 {
 	public interface IWordEntrySeeder
 	{
-		async Task Seed(int count) { }
+		Task Seed(int count);
+		Task Import(string path);
 	}
 	public class WordEntrySeeder : IWordEntrySeeder
 	{
 		private readonly IMongoCollection<WordEntry> _wordEntryFakeCollection;
+		private readonly IMongoCollection<WordEntry> _wordEntryActualCollection;
 		private readonly IMongoClient _mongoClient;
 		public WordEntrySeeder(IOptions<MongoDBSettings> options)
 		{
 			_mongoClient = new MongoClient(options.Value.ConnectionURI);
 			IMongoDatabase database = _mongoClient.GetDatabase("online_dictionary_fake");
 			_wordEntryFakeCollection = database.GetCollection<WordEntry>("word_entries");
-		}
-		public async Task Seed(int count)
+			IMongoDatabase database_real = _mongoClient.GetDatabase("online_dictionary");
+			_wordEntryActualCollection = database_real.GetCollection<WordEntry>("word_entries");
+
+        }
+        public async Task Seed(int count)
 		{
 			try
 			{
@@ -34,14 +40,46 @@ namespace online_dictionary.Seeder
 			}
 			
 		}
-		public List<WordEntry> GenerateWordEntries(int count)
+
+		public async Task Import(string filePath)
+		{
+			try
+			{
+				var jsonString = await File.ReadAllTextAsync(filePath);
+				var data = JsonConvert.DeserializeObject<WordDefinitionJson>(jsonString);
+				var wordEntries = CleanDuplicate(data.Data);
+                await _wordEntryActualCollection.DeleteManyAsync(FilterDefinition<WordEntry>.Empty);
+                await _wordEntryActualCollection.InsertManyAsync(wordEntries);
+				Console.WriteLine("Successfully added " + data.Count + " word entries to the database");
+                Console.WriteLine("Data imported to MongoDB successfully.");
+            }
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
+				throw new Exception("There is an error with importing json file", ex);
+			}
+		}
+		private List<WordEntry> CleanDuplicate(List<WordEntry> wordEntries) {
+			var wordList = new HashSet<string>();
+			List<WordEntry> newWordEntries = new List<WordEntry>();
+			foreach (var wordEntry in wordEntries)
+			{
+				if (wordList.Add(wordEntry.Word))
+				{
+					newWordEntries.Add(wordEntry);
+				}
+			}
+
+			return newWordEntries;
+		}
+		private List<WordEntry> GenerateWordEntries(int count)
 		{
 			//To-do: learn how to generate only unique words here.
 			var wordList = new HashSet<string>();
 			var faker = new Faker<WordEntry>()
 			.RuleFor(w => w.Word, f =>
             {
-                string word;
+				string word;
                 do
                 {
                     word = f.Lorem.Word();
@@ -63,9 +101,10 @@ namespace online_dictionary.Seeder
 				{
 					Meaning = faker.Lorem.Sentence(),
 					Type = faker.Random.Enum<Type>().ToString(),
-					Complexity = faker.Random.Enum<Complexity>().ToString(),
+					//Complexity = faker.Random.Enum<Complexity>().ToString(),
 					Examples = new List<string>(faker.Make(faker.Random.Number(1, 3), () => faker.Lorem.Sentence())),
-					Synonyms = new List<string>(faker.Make(faker.Random.Number(1, 3), () => faker.Lorem.Word())),
+					//Synonyms = new List<string>(faker.Make(faker.Random.Number(1, 3), () => faker.Lorem.Word())),
+					Synonyms = faker.Lorem.Word(),
 				};
 
 				interpretations.Add(interpretation);
@@ -73,6 +112,12 @@ namespace online_dictionary.Seeder
 
 			return interpretations;
 		}
+	}
+
+	public class WordDefinitionJson
+	{
+		public int Count { get; set; }
+		public List<WordEntry> Data { get; set; }
 	}
 	public enum Complexity
 	{

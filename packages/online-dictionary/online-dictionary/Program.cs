@@ -21,7 +21,9 @@ using (var scope = app.Services.CreateScope())
 {
    var services = scope.ServiceProvider;
    var dataSeeder = services.GetRequiredService<IWordEntrySeeder>(); // Assuming you have registered IDataSeeder in ConfigureServices
-   await dataSeeder.Seed(100);
+																	 
+	//await dataSeeder.Seed(100);
+	//await dataSeeder.Import(@"words_definitions.json");
 }
 
 // Configure the HTTP request pipeline.
