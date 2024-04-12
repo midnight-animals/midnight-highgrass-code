@@ -17,12 +17,12 @@ namespace online_dictionary.Seeder
 		private readonly IMongoCollection<WordEntry> _wordEntryFakeCollection;
 		private readonly IMongoCollection<WordEntry> _wordEntryActualCollection;
 		private readonly IMongoClient _mongoClient;
-		public WordEntrySeeder(IOptions<MongoDBSettings> options)
+		public WordEntrySeeder()
 		{
-			_mongoClient = new MongoClient(options.Value.ConnectionURI);
-			IMongoDatabase database = _mongoClient.GetDatabase("online_dictionary_fake");
-			_wordEntryFakeCollection = database.GetCollection<WordEntry>("word_entries");
-			IMongoDatabase database_real = _mongoClient.GetDatabase("online_dictionary");
+            _mongoClient = new MongoClient(Environment.GetEnvironmentVariable("MONGODB_CONNECTION_URI"));
+            IMongoDatabase database_fake = _mongoClient.GetDatabase(Environment.GetEnvironmentVariable("MONGODB_DATABASE_FAKE"));
+			_wordEntryFakeCollection = database_fake.GetCollection<WordEntry>("word_entries");
+			IMongoDatabase database_real = _mongoClient.GetDatabase(Environment.GetEnvironmentVariable("MONGODB_DATABASE"));
 			_wordEntryActualCollection = database_real.GetCollection<WordEntry>("word_entries");
 
         }

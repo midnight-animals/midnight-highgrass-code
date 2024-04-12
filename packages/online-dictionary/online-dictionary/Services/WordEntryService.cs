@@ -14,7 +14,6 @@ namespace online_dictionary.Services
         Task<IEnumerable<WordEntry>> GetPaginatedWordEntriesAsync(int page, int pageSize);
         Task<List<string>> GetAllOnlyWordsAsync();
         Task<List<string>> Search(string query);
-
         Task<long> GetCountAsync();
         Task AddWordEntryAsync(WordEntry wordEntry);
         Task UpdateWordEntryAsync(string word, WordEntry wordEntry);
@@ -24,9 +23,9 @@ namespace online_dictionary.Services
     {
         private readonly IMongoCollection<WordEntry> _wordEntriesCollection;
         private readonly IMongoClient _mongoClient;
-        public WordEntryService(IOptions<MongoDBSettings> options) {
-            _mongoClient = new MongoClient(options.Value.ConnectionURI);
-            IMongoDatabase database = _mongoClient.GetDatabase("online_dictionary");
+        public WordEntryService() {
+            _mongoClient = new MongoClient(Environment.GetEnvironmentVariable("MONGODB_CONNECTION_URI"));
+            IMongoDatabase database = _mongoClient.GetDatabase(Environment.GetEnvironmentVariable("MONGODB_DATABASE"));
             _wordEntriesCollection = database.GetCollection<WordEntry>("word_entries");
         }
         public async Task<bool> IsMongoDBConnected()

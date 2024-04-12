@@ -51,7 +51,12 @@ void ConfigureServices (IServiceCollection services)
 	services.AddControllers();
 	services.AddScoped<IWordEntryService, WordEntryService>();
     //services.AddScoped<IWordEntrySeeder, WordEntrySeeder>();
-	services.Configure<MongoDBSettings>(builder.Configuration.GetSection("MongoDB"));
-	services.AddSingleton<WordEntryService>();
+    Environment.SetEnvironmentVariable("MONGODB_CONNECTION_URI", builder.Configuration.GetSection("MongoDB")
+        .GetSection("ConnectionURI").Value);
+    Environment.SetEnvironmentVariable("MONGODB_DATABASE", builder.Configuration.GetSection("MongoDB")
+        .GetSection("Database").Value);
+    Environment.SetEnvironmentVariable("MONGODB_DATABASE_FAKE", builder.Configuration.GetSection("MongoDB")
+        .GetSection("DatabaseFake").Value);
+    services.AddSingleton<WordEntryService>();
 	services.AddSingleton<IWordEntrySeeder, WordEntrySeeder>();
 }
