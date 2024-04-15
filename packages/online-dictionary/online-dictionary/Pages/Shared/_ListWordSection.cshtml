@@ -15,7 +15,7 @@
     const pageSize = 20; // Set the page size
     const pageLinksContainer = document.getElementById("pageLinks");
 
-    function generatePageLinks(currentPage, totalPage) {
+    function generatePageLinks(totalPage) {
         pageLinksContainer.innerHTML = ''; // Clear previous links
         const pagesToShow = 5; // Number of page links to show
 
@@ -51,8 +51,8 @@
 
                 json.data.forEach(word => {
                     const wordItem = document.createElement('a');
-                    wordItem.href = `/definition/${word.word}`;
-                    wordItem.textContent = word.word;
+                    wordItem.href = `/definition/${word}`;
+                    wordItem.textContent = word;
                     wordListContainer.appendChild(wordItem);
                     wordListContainer.appendChild(document.createElement('br')); // Add line break
                 });
@@ -61,7 +61,7 @@
                 wordListContainer.appendChild(count);
 
                 pageContainer.textContent = `Page ${json.page} of ${json.totalPage} total pages`;
-                generatePageLinks(currentPage, totalPage);
+                generatePageLinks(totalPage);
 
             })
             .catch(error => console.error('Error fetching words:', error));

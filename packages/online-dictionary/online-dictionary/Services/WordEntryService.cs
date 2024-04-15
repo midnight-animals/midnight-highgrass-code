@@ -11,7 +11,7 @@ namespace online_dictionary.Services
 		Task<bool> IsMongoDBConnected();
 		Task<WordEntry> GetWordEntryAsync(string word);
         //Task<IEnumerable<WordEntry>> GetAllWordEntriesAsync();
-        Task<List<WordEntry>> GetPaginatedWordEntriesAsync(int page, int pageSize);
+        Task<List<string>> GetPaginatedWordEntriesAsync(int page, int pageSize);
         Task<List<string>> GetAllOnlyWordsAsync();
         Task<List<string>> Search(string query);
         Task<long> GetCountAsync();
@@ -65,15 +65,22 @@ namespace online_dictionary.Services
             return words;
         }
 
-		public async Task<List<WordEntry>> GetPaginatedWordEntriesAsync(int page, int pageSize)
+		public async Task<List<string>> GetPaginatedWordEntriesAsync(int page, int pageSize)
         {
             var skip = (page - 1) * pageSize;
             var projection = Builders<WordEntry>.Projection.Include(w => w.Word);
-            var wordEntries = await _wordEntriesCollection.Find(FilterDefinition<WordEntry>.Empty)
+            var cursor = await _wordEntriesCollection.Find(FilterDefinition<WordEntry>.Empty)
+                .Project(projection)
                 .Skip(skip)
                 .Limit(pageSize)
-                .ToListAsync();
-            return wordEntries;
+                .ToCursorAsync();
+
+            var words = new List<string>();
+            await cursor.ForEachAsync(document =>
+            {
+                words.Add(document.GetValue("_id").AsString);
+            });
+            return words;
         }
 
         public async Task<long> GetCountAsync()
