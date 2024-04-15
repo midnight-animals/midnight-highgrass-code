@@ -10,8 +10,8 @@ namespace online_dictionary.Services
     {
 		Task<bool> IsMongoDBConnected();
 		Task<WordEntry> GetWordEntryAsync(string word);
-        Task<IEnumerable<WordEntry>> GetAllWordEntriesAsync();
-        Task<IEnumerable<WordEntry>> GetPaginatedWordEntriesAsync(int page, int pageSize);
+        //Task<IEnumerable<WordEntry>> GetAllWordEntriesAsync();
+        Task<List<WordEntry>> GetPaginatedWordEntriesAsync(int page, int pageSize);
         Task<List<string>> GetAllOnlyWordsAsync();
         Task<List<string>> Search(string query);
         Task<long> GetCountAsync();
@@ -45,10 +45,10 @@ namespace online_dictionary.Services
             return await _wordEntriesCollection.Find(filter).FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<WordEntry>> GetAllWordEntriesAsync()
-        {
-            return await _wordEntriesCollection.Find(_ => true).ToListAsync();
-        }
+        //public async Task<IEnumerable<WordEntry>> GetAllWordEntriesAsync()
+        //{
+        //    return await _wordEntriesCollection.Find(_ => true).ToListAsync();
+        //}
 
 		public async Task<List<string>> GetAllOnlyWordsAsync()
         {
@@ -65,14 +65,14 @@ namespace online_dictionary.Services
             return words;
         }
 
-		public async Task<IEnumerable<WordEntry>> GetPaginatedWordEntriesAsync(int page, int pageSize)
+		public async Task<List<WordEntry>> GetPaginatedWordEntriesAsync(int page, int pageSize)
         {
             var skip = (page - 1) * pageSize;
-            var wordEntries = await _wordEntriesCollection.Find(entry => true)
+            var projection = Builders<WordEntry>.Projection.Include(w => w.Word);
+            var wordEntries = await _wordEntriesCollection.Find(FilterDefinition<WordEntry>.Empty)
                 .Skip(skip)
                 .Limit(pageSize)
                 .ToListAsync();
-            var all = await GetAllWordEntriesAsync();
             return wordEntries;
         }
 

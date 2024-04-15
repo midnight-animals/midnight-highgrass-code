@@ -11,6 +11,7 @@ namespace online_dictionary.Controllers
     public class WordEntryController : Controller
     {
         private readonly IWordEntryService _wordEntryService;
+        private readonly int maxPageSize = 20;
         public WordEntryController(IWordEntryService wordEntryService)
         {
             _wordEntryService = wordEntryService;
@@ -18,6 +19,7 @@ namespace online_dictionary.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPaginatedWordEntries(int page = 1, int pageSize = 20)
         {
+            if (pageSize > maxPageSize) { pageSize = maxPageSize; }
             var wordEntries = await _wordEntryService.GetPaginatedWordEntriesAsync(page, pageSize);
             long count = wordEntries.Count();
             long total = await _wordEntryService.GetCountAsync();
