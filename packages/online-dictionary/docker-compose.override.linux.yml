@@ -11,5 +11,8 @@ services:
       - ASPNETCORE_URLS=https://+:8081;http://+:8080
       - ASPNETCORE_Kestrel__Certificates__Default__Password=password1
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - MONGODB_CONNECTION_URI=mongodb://mongodb:27017?retryWrites=true&w=majority
+      - MONGODB_DATABASE=online_dictionary
+      - MONGODB_DATABASE_FAKE=online_dictionary_fake
     volumes:
       - ~/.aspnet/https:/https:ro
