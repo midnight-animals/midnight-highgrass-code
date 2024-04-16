@@ -1,0 +1,54 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Catala",
+  "patterns": [
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#strings"
+    },
+    { "include": "#expression" }
+  ],
+  "repository": {
+    "expression": {
+      "patterns": [{ "include": "#letter" }, { "include": "#paren-expression" }]
+    },
+    "letter": {
+      "match": "a|b|c",
+      "name": "keyword.letter"
+    },
+    "paren-expression": {
+      "begin": "\\(",
+      "end": "\\)",
+      "beginCaptures": {
+        "0": { "name": "punctuation.paren.open" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.paren.close" }
+      },
+      "name": "expression.group",
+      "patterns": [{ "include": "#expression" }]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.catala",
+          "match": "\\b(if|while|for|return)\\b"
+        }
+      ]
+    },
+    "strings": {
+      "name": "string.quoted.double.catala",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.catala",
+          "match": "\\\\."
+        }
+      ]
+    }
+  },
+  "scopeName": "catala"
+}
