@@ -16,6 +16,7 @@ services:
 
   online-dictionary:
     image: ${DOCKER_REGISTRY-}onlinedictionary
+    container_name: asp.net
     build:
       context: .
       dockerfile: online-dictionary/Dockerfile
@@ -24,11 +25,26 @@ services:
 
   mongodb:
     image: mongo:latest
-    # container_name: mongodb
+    container_name: mongodb
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+    networks:
+      - mongodb_network
+
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:latest
+    container_name: sql-server
+    hostname: "sqlserver"
+    environment:
+      SA_PASSWORD: "0nline!Dictionary"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/data
+      - sql_log:/var/opt/data/log
     networks:
       - mongodb_network
 
@@ -38,3 +54,5 @@ networks:
 
 volumes:
   mongodb_data:
+  sql_data:
+  sql_log:

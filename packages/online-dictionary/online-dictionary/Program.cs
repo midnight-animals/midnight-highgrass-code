@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using online_dictionary.Data;
 using online_dictionary.Models;
 using online_dictionary.Seeder;
 using online_dictionary.Services;
@@ -57,6 +59,10 @@ void ConfigureServices (IServiceCollection services)
     //    .GetSection("Database").Value);
     //Environment.SetEnvironmentVariable("MONGODB_DATABASE_FAKE", builder.Configuration.GetSection("MongoDB")
     //    .GetSection("DatabaseFake").Value);
+    Environment.SetEnvironmentVariable("SQLSERVER_CONNECTION_URI", builder.Configuration.GetSection("SQLServer")
+        .GetSection("ConnectionURI").Value);
     services.AddSingleton<WordEntryService>();
 	services.AddSingleton<IWordEntrySeeder, WordEntrySeeder>();
+    //builder.Services.AddDbContext<OnlineDictionaryContext>(options =>
+    //    options.UseSqlServer(Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION_URI")));
 }
