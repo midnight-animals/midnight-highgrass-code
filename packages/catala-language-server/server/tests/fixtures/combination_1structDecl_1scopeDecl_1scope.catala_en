@@ -1,0 +1,13 @@
+```catala
+declaration structure Individual:
+  data income content money
+```
+```catala
+declaration scope IncomeTaxComputation:
+  input individual content Individual
+```
+```catala
+scope IncomeTaxComputation:
+  definition income_tax equals
+    individual.income * fixed_percentage
+```

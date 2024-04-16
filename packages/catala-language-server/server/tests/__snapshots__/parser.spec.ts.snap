@@ -1,0 +1,180 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`parser combination_declStruct_declScope_scope 1`] = `
+{
+  "content": "
+\`\`\`catala
+declaration structure Individual:
+  data income content money
+\`\`\`
+\`\`\`catala
+declaration scope IncomeTaxComputation:
+  input individual content Individual
+\`\`\`
+\`\`\`catala
+scope IncomeTaxComputation:
+  definition income_tax equals
+    individual.income * fixed_percentage
+\`\`\`
+",
+  "props": {
+    "enum_struct_name": [
+      {
+        "endPosition": {
+          "column": 32,
+          "row": 1,
+        },
+        "startPosition": {
+          "column": 22,
+          "row": 1,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 37,
+          "row": 6,
+        },
+        "startPosition": {
+          "column": 27,
+          "row": 6,
+        },
+        "text": "Individual",
+      },
+    ],
+    "field_name": [
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 2,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 2,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 21,
+          "row": 11,
+        },
+        "startPosition": {
+          "column": 15,
+          "row": 11,
+        },
+        "text": "income",
+      },
+    ],
+    "scope": [
+      {
+        "endPosition": {
+          "column": 40,
+          "row": 11,
+        },
+        "startPosition": {
+          "column": 0,
+          "row": 9,
+        },
+        "text": "scope IncomeTaxComputation:
+  definition income_tax equals
+    individual.income * fixed_percentage",
+      },
+    ],
+    "variable": [
+      {
+        "endPosition": {
+          "column": 18,
+          "row": 6,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 6,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 10,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 10,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 11,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 11,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 40,
+          "row": 11,
+        },
+        "startPosition": {
+          "column": 24,
+          "row": 11,
+        },
+        "text": "fixed_percentage",
+      },
+    ],
+  },
+}
+`;
+
+exports[`parser scope_and_definition 1`] = `
+{
+  "content": "
+\`\`\`catala
+scope IncomeTaxComputation:
+  definition income_tax equals
+    individual.income
+\`\`\`
+",
+  "props": {},
+}
+`;
+
+exports[`parser scope_decl 1`] = `
+{
+  "content": "
+\`\`\`catala
+declaration scope IncomeTaxComputation:
+  input individual content Individual
+\`\`\`
+",
+  "props": {},
+}
+`;
+
+exports[`parser struct_decl 1`] = `
+{
+  "content": "
+\`\`\`catala
+declaration structure Individual:
+\`\`\`
+",
+  "props": {},
+}
+`;
+
+exports[`parser struct_decl_with_1_field 1`] = `
+{
+  "content": "
+\`\`\`catala
+declaration structure Individual:
+  data income content money
+\`\`\`
+",
+  "props": {},
+}
+`;

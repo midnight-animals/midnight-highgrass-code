@@ -1,0 +1,9 @@
+```catala
+declaration structure Individual:
+  data income content money
+```
+
+```catala
+declaration scope IncomeTaxComputation:
+  input individual content Individual
+```

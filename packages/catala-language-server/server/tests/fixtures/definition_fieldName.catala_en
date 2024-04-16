@@ -1,0 +1,15 @@
+```catala
+declaration scope NewIncomeTaxComputation:
+  input individual content Individual
+```
+
+```catala
+scope Test1:
+  definition
+    tax_computation.individual
+  equals
+    Individual {
+      -- income: $230,000
+      -- number_of_children: 0
+    }
+```
