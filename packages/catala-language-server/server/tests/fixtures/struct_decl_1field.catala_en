@@ -1,0 +1,4 @@
+```catala
+declaration structure Individual:
+  data income content money
+```

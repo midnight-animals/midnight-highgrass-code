@@ -1,0 +1,57 @@
+{
+  "parser-directories": [
+    "",
+    "/server/src/catala/tree-sitter",
+    "/home/user/dev/projects/midnight/midnight-highgrass-code/packages/catala-language-server/server/src/catala/tree-sitter",
+    "."
+  ],
+  "theme": {
+    "type": 23,
+    "string": 28,
+    "constant.builtin": {
+      "color": 94,
+      "bold": true
+    },
+    "property": 124,
+    "attribute": {
+      "color": 124,
+      "italic": true
+    },
+    "comment": {
+      "color": 245,
+      "italic": true
+    },
+    "operator": {
+      "color": 239,
+      "bold": true
+    },
+    "punctuation.delimiter": 239,
+    "function.builtin": {
+      "color": 26,
+      "bold": true
+    },
+    "variable.parameter": {
+      "underline": true
+    },
+    "number": {
+      "color": 94,
+      "bold": true
+    },
+    "constructor": 136,
+    "variable.builtin": {
+      "bold": true
+    },
+    "module": 136,
+    "embedded": null,
+    "function": 26,
+    "keyword": 56,
+    "string.special": 30,
+    "tag": 18,
+    "type.builtin": {
+      "bold": true,
+      "color": 23
+    },
+    "constant": 94,
+    "punctuation.bracket": 239
+  }
+}

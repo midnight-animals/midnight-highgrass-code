@@ -1,0 +1,5 @@
+```catala
+scope IncomeTaxComputation:
+  definition income_tax equals
+    individual.income
+```

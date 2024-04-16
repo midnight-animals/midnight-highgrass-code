@@ -1,0 +1,4 @@
+```catala
+declaration scope IncomeTaxComputation:
+  input individual content Individual
+```

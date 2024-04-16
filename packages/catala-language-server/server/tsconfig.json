@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "lib": ["es2020"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "strict": true,
+    "outDir": "out",
+    "rootDir": "src",
+    "allowJs": true,
+    "strictPropertyInitialization": false,
+    "resolveJsonModule": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src",
+    "src/catala/tree-sitter/bindings/node/index.js",
+    "src/catala/tree-sitter/bindings"
+  ],
+  "exclude": ["node_modules", ".vscode-test"],
+  "files": [
+    "src/catala/tree-sitter/bindings/node/index.js"
+    // "src/catala/tree-sitter/bindings/node/**/*.js"
+  ]
+}
