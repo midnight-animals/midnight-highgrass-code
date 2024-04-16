@@ -1,0 +1,149 @@
+# Focus
+
+# Features
+
+## Completions
+
+### Scope
+
+  ```catala
+  declaration structure Individual:
+    data income content money
+  ```
+  ```catala
+  declaration scope IncomeTaxComputation:
+    input individual content Individual
+  ```
+  ```catala
+  scope IncomeTaxComputation:
+    definition income_tax equals
+      individual.income * fixed_percentage
+  ```
+
+  - [ ] `scope` should have access to `declaration scope`
+
+  - approach
+    - [ ] inside `scope` allow completions of fields
+    - [ ] in declaration scope `IncomeTaxComputation` `individal` is of structure `Individual`
+      - [ ] when in scope `IncomeTaxComputation` `individual` is used,
+        - [ ] it refers to the `individual`
+        - [ ] declared in the `IncomeTaxComputation` scope
+
+    - [ ] because `individual` is defined in the declaration scope
+      - [ ] should provide it as completions
+        - [ ] everywhere
+        - [ ] only in scope ` IncomeTaxComputation
+
+## Definition
+
+### scope name
+- [x] `struct_decl_item`
+
+```catala
+declaration structure Individual:
+  data income content money
+```
+```catala
+declaration scope IncomeTaxComputation:
+  input individual content Individual
+  #                        ^  6:27
+```
+
+## Initialized
+
+### scope name
+  ```catala
+  declaration scope NewIncomeTaxComputationFixed: // scope_name
+    two_brackets scope TwoBracketsTaxComputation  // qscope <-- TODO understand how this works
+  ```
+  ```catala
+  declaration scope IncomeTaxComputation:
+    input individual content Individual
+    internal fixed_percentage content decimal
+    output income_tax content money
+  ```
+  ```catala
+  scope IncomeTaxComputation:
+    definition income_tax equals
+      individual.income * fixed_percentage
+  ```
+  - [ ] input
+    - [ ] inside a declaration scope, parse `input`s
+  - [ ] no prefix word
+    - same as `input`
+  - [ ] internal: should not complete in `scope`
+  - [ ] output
+
+  - approach:
+    - get current file
+    - get all declaration
+    - save them in an object named `catalaFiles`
+  - notes
+    - top level scope and first level scope in body
+
+  ```catala
+declaration scope IncomeTaxComputation:
+  input individual content Individual
+```
+```catala
+scope IncomeTaxComputation:
+  definition income_tax equals
+    individual.income
+```
+
+### structure name
+- [ ] should autocomplete its field
+  ```catala
+  declaration structure Individual:
+    data income content money
+  ```
+  - [x] structure and its field, and field's type
+  - [x] field types
+    - [x] primitive_typ
+    - [x] others? based on following, seems like there is no other type
+    ```
+    primitive_typ
+      children
+        BOOLEAN
+        DATE
+        DECIMAL
+        DURATION
+        INTEGER
+        MONEY
+        TEXT
+        qenum_struct
+    ```
+  - approach
+    -
+
+## Assorted
+- [ ] defintion
+  - [ ] allSyntax line 27 `IncomeTaxComputation` - no matched
+  - [ ] allSyntax line 101 `tax_computation` - too many, should only be current scope?
+- [ ] symbols
+- [ ] parsing
+  - [ ] on init for all open files
+  - [ ] on edit for current
+  - [ ] on save for all saved
+- [ ] [ISSUE-JcuPKubs] extension settings
+  - [ ] diagnostics for catala cli
+  - [ ] diagnostics for tree-sitter parser
+- [ ] [ISSUE-Nexpb4xv] language support (fr and pl)
+- [ ] [snippet] for catala codeblock
+  ```json
+	"Code snippet for catala": { "prefix": "codecatala", "body": [ "```catala", "$0", "```" ], },
+  ```
+- [ ]  /** TODO ISSUE-6FErb8ou Can I assume, that structs are unique? */
+
+### Done
+
+- [x] [tests] how to deal with catala test scopes?
+- [x] [error] log parser erros
+- [x] variable on definitoin
+
+
+-----------------------------------
+
+# Approach
+- parsing
+  - primitive recursive through ALL nodes (even if duplicated)

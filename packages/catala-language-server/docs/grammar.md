@@ -1,0 +1,1520 @@
+
+<!-- check tree-sitter-catala/src/node-types.json  -->
+e_scope_apply
+  LBRACE
+  OF
+  OUTPUT
+  RBRACE
+  WITH
+  qscope
+  struct_content_fields
+
+
+COMMENT
+
+assertion
+  fields
+    body
+      expression
+    condition
+      expression
+  children
+    ASSERTION
+    CONSEQUENCE
+    UNDER_CONDITION
+
+binder
+  children
+    LPAREN
+    RPAREN
+    var_list
+    variable
+
+builtin
+  children
+    CARDINAL
+    DECIMAL
+    FirstDayOfMonth
+    GetDay
+    GetMonth
+    GetYear
+    LastDayOfMonth
+    MONEY
+    Round
+
+code_block
+  children
+    BEGIN_CODE
+    BEGIN_METADATA
+    END_CODE
+    enum_decl
+    scope
+    scope_decl
+    struct_decl
+    toplevel_def
+
+collection_elements
+  children
+    SEMICOLON
+    builtin
+    e_apply
+    e_binop
+    e_coll_arg_extremum
+    e_coll_contains
+    e_coll_exists
+    e_coll_extremum
+    e_coll_filter
+    e_coll_filter_map
+    e_coll_forall
+    e_coll_map
+    e_coll_sum
+    e_collection
+    e_enum
+    e_fieldaccess
+    e_ifthenelse
+    e_letin
+    e_match
+    e_scope_apply
+    e_struct
+    e_test_match
+    e_tuple
+    e_unop
+    e_variable
+    literal
+
+constructor_name
+
+definition
+  fields
+    body
+      expression
+    condition
+      expression
+    name
+      scope_var
+  children
+    CONSEQUENCE
+    DEFINED_AS
+    DEFINITION
+    EXCEPTION
+    LABEL
+    OF
+    STATE
+    UNDER_CONDITION
+    label
+    rule_parameters
+    state_label
+
+directive
+  children
+    AT_PAGE
+    BEGIN_DIRECTIVE
+    COLON
+    DIRECTIVE_ARG
+    END_DIRECTIVE
+    LAW_INCLUDE
+    MODULE_ALIAS
+    MODULE_DEF
+    MODULE_USE
+    module_name
+
+e_apply
+  fields
+    fun_arguments
+  fun
+    builtin
+    e_apply
+    e_binop
+    e_coll_arg_extremum
+    e_coll_contains
+    e_coll_exists
+    e_coll_extremum
+    e_coll_filter
+    e_coll_filter_map
+    e_coll_forall
+    e_coll_map
+    e_coll_sum
+    e_collection
+    e_enum
+    e_fieldaccess
+    e_ifthenelse
+    e_letin
+    e_match
+    e_scope_apply
+    e_struct
+    e_test_match
+    e_tuple
+    e_unop
+    e_variable
+    literal
+  children
+    OF
+
+e_binop
+  fields
+    lhs
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+  op
+    AND
+    DIV
+    EQUAL
+    GREATER
+    GREATER_EQUAL
+    LESSER
+    LESSER_EQUAL
+    MINUS
+    MULT
+    NOT_EQUAL
+    OR
+    PLUS
+    PLUSPLUS
+    XOR
+
+  rhs
+    builtin
+    e_apply
+    e_binop
+    e_coll_arg_extremum
+    e_coll_contains
+    e_coll_exists
+    e_coll_extremum
+    e_coll_filter
+    e_coll_filter_map
+    e_coll_forall
+    e_coll_map
+    e_coll_sum
+    e_collection
+    e_enum
+    e_fieldaccess
+    e_ifthenelse
+    e_letin
+    e_match
+    e_scope_apply
+    e_struct
+    e_test_match
+    e_tuple
+    e_unop
+    e_variable
+    literal
+
+  e_coll_arg_extremum
+    fields
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      AMONG
+      CONTENT
+      EMPTY
+      IF
+      IS
+      LIST
+      MAXIMUM
+      MINIMUM
+      OF
+      OR
+      SUCH
+      THAT
+      THEN
+      variable
+      e_coll_contains
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      CONTAINS
+      e_coll_exists
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      AMONG
+      EXISTS
+      SUCH
+      THAT
+      binder
+      e_coll_extremum
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      EMPTY
+      IF
+      LIST
+      MAXIMUM
+      MINIMUM
+      OF
+      OR
+      THEN
+      e_coll_filter
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      AMONG
+      LIST
+      OF
+      SUCH
+      THAT
+      variable
+      e_coll_filter_map
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      AMONG
+      FOR
+      SUCH
+      THAT
+      binder
+      e_coll_forall
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      ALL
+      AMONG
+      FOR
+      WE_HAVE
+      binder
+      e_coll_map
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      AMONG
+      FOR
+      binder
+      e_coll_sum
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      OF
+      SUM
+      primitive_typ
+      e_collection
+      LBRACKET
+      RBRACKET
+      collection_elements
+      e_enum
+      CONTENT
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      qconstructor
+      e_fieldaccess
+      DOT
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      qfield
+      e_ifthenelse
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      ELSE
+      IF
+      THEN
+      e_letin
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      DEFINED_AS
+      IN
+      LET
+      binder
+      e_match
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      ALT
+      MATCH
+      WITH_PATT
+      match_case
+      e_scope_apply
+      LBRACE
+      OF
+      OUTPUT
+      RBRACE
+      WITH
+      qscope
+      struct_content_fields
+      e_struct
+      LBRACE
+      RBRACE
+      qenum_struct
+      struct_content_fields
+      e_test_match
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+      OF
+      WITH_PATT
+      qconstructor
+      variable
+      e_tuple
+      LPAREN
+      RPAREN
+      tuple_contents
+      e_unop
+      MINUS
+      NOT
+      builtin
+      e_apply
+      e_binop
+      e_coll_arg_extremum
+      e_coll_contains
+      e_coll_exists
+      e_coll_extremum
+      e_coll_filter
+      e_coll_filter_map
+      e_coll_forall
+      e_coll_map
+      e_coll_sum
+      e_collection
+      e_enum
+      e_fieldaccess
+      e_ifthenelse
+      e_letin
+      e_match
+      e_scope_apply
+      e_struct
+      e_test_match
+      e_tuple
+      e_unop
+      e_variable
+      literal
+
+e_variable
+DOT
+module_name
+variable
+
+enum_decl
+ALT
+
+enum_decl_item
+enum_struct_name
+
+COLON
+DECLARATION
+ENUM
+enum_decl_item
+CONTENT
+constructor_name
+typ
+enum_struct_name
+
+expression
+builtin
+e_apply
+e_binop
+e_coll_arg_extremum
+e_coll_contains
+e_coll_exists
+e_coll_extremum
+e_coll_filter
+e_coll_filter_map
+e_coll_forall
+e_coll_map
+e_coll_sum
+e_collection
+e_enum
+e_fieldaccess
+e_ifthenelse
+e_letin
+e_match
+e_scope_apply
+e_struct
+e_test_match
+e_tuple
+e_unop
+e_variable
+literal
+
+field_name
+
+fun_argument
+builtin
+e_apply
+e_binop
+e_coll_arg_extremum
+e_coll_contains
+e_coll_exists
+e_coll_extremum
+e_coll_filter
+e_coll_filter_map
+e_coll_forall
+e_coll_map
+e_coll_sum
+e_collection
+e_enum
+e_fieldaccess
+e_ifthenelse
+e_letin
+e_match
+e_scope_apply
+e_struct
+e_test_match
+e_tuple
+e_unop
+e_variable
+literal
+fun_arguments
+COMMA
+
+fun_argument
+
+label
+
+law_heading
+BAR
+LAW_HEADING
+LAW_LABEL
+
+law_text
+LAW_TEXT
+
+literal
+DATE_LITERAL
+DECIMAL_LITERAL
+FALSE
+INT_LITERAL
+MONEY_AMOUNT
+TRUE
+unit_literal
+
+match_case
+COLON
+OF
+WILDCARD
+binder
+builtin
+e_apply
+e_binop
+e_coll_arg_extremum
+e_coll_contains
+e_coll_exists
+e_coll_extremum
+e_coll_filter
+e_coll_filter_map
+e_coll_forall
+e_coll_map
+e_coll_sum
+e_collection
+e_enum
+e_fieldaccess
+e_ifthenelse
+e_letin
+e_match
+e_scope_apply
+e_struct
+e_test_match
+e_tuple
+e_unop
+e_variable
+literal
+qconstructor
+
+module_name
+
+param_decl
+  CONTENT
+typ
+variable
+
+params_decl
+COMMA
+param_decl
+
+primitive_typ
+  children
+    BOOLEAN
+    DATE
+    DECIMAL
+    DURATION
+    INTEGER
+    MONEY
+    TEXT
+    qenum_struct
+
+qconstructor
+DOT
+constructor_name
+qenum_struct
+qenum_struct
+DOT
+enum_struct_name
+module_name
+qfield
+DOT
+field_name
+qenum_struct
+qscope
+DOT
+module_name
+scope_name
+rounding_mode
+DATE
+DECREASING
+INCREASING
+Round
+rule
+FILLED
+NOT
+expression
+scope_var
+CONSEQUENCE
+EXCEPTION
+LABEL
+OF
+RULE
+STATE
+UNDER_CONDITION
+label
+rule_parameters
+state_label
+rule_parameters
+COMMA
+variable
+scope
+assertion
+definition
+rounding_mode
+rule
+expression
+scope_name
+COLON
+SCOPE
+UNDER_CONDITION
+scope_decl
+scope_decl_item
+scope_name
+COLON
+DECLARATION
+SCOPE
+scope_decl_item
+CONDITION
+CONTENT
+DEPENDS
+LPAREN
+RPAREN
+SCOPE
+STATE
+params_decl
+qscope
+scope_decl_item_attribute
+state_label
+typ
+variable
+scope_decl_item_attribute
+CONTEXT
+INPUT
+INTERNAL
+OUTPUT
+scope_name
+scope_var
+DOT
+variable
+source_file
+
+code_block
+directive
+law_heading
+law_text
+verb_block
+state_label
+struct_content_field
+COLON
+builtin
+e_apply
+e_binop
+e_coll_arg_extremum
+e_coll_contains
+e_coll_exists
+e_coll_extremum
+e_coll_filter
+e_coll_filter_map
+e_coll_forall
+e_coll_map
+e_coll_sum
+e_collection
+e_enum
+e_fieldaccess
+e_ifthenelse
+e_letin
+e_match
+e_scope_apply
+e_struct
+e_test_match
+e_tuple
+e_unop
+e_variable
+literal
+qfield
+struct_content_fields
+ALT
+struct_content_field
+struct_decl
+struct_decl_item
+enum_struct_name
+COLON
+DECLARATION
+STRUCT
+struct_decl_item
+CONDITION
+CONTENT
+DATA
+DEPENDS
+LPAREN
+RPAREN
+field_name
+params_decl
+typ
+toplevel_def
+expression
+variable
+CONTENT
+DECLARATION
+DEFINED_AS
+DEPENDS
+LPAREN
+RPAREN
+params_decl
+typ
+tuple_contents
+COMMA
+builtin
+e_apply
+e_binop
+e_coll_arg_extremum
+e_coll_contains
+e_coll_exists
+e_coll_extremum
+e_coll_filter
+e_coll_filter_map
+e_coll_forall
+e_coll_map
+e_coll_sum
+e_collection
+e_enum
+e_fieldaccess
+e_ifthenelse
+e_letin
+e_match
+e_scope_apply
+e_struct
+e_test_match
+e_tuple
+e_unop
+e_variable
+literal
+typ
+LIST
+LPAREN
+OF
+RPAREN
+primitive_typ
+typ
+typ_list
+typ_list
+COMMA
+typ
+unit_literal
+DAY
+MONTH
+PERCENT
+YEAR
+var_list
+COMMA
+variable
+variable
+verb_block
+    "type": "#",
+ALL
+ALT
+AMONG
+AND
+ASSERTION
+AT_PAGE
+BAR
+BEGIN_CODE
+BEGIN_DIRECTIVE
+BEGIN_METADATA
+BOOLEAN
+CARDINAL
+COLON
+COMMA
+CONDITION
+CONSEQUENCE
+CONTAINS
+CONTENT
+CONTEXT
+DATA
+DATE
+DATE_LITERAL
+DAY
+DECIMAL
+DECIMAL_LITERAL
+DECLARATION
+DECREASING
+DEFINED_AS
+DEFINITION
+DEPENDS
+DIRECTIVE_ARG
+DIV
+DOT
+DURATION
+ELSE
+EMPTY
+END_CODE
+END_DIRECTIVE
+ENUM
+EQUAL
+EXCEPTION
+EXISTS
+FALSE
+FILLED
+FOR
+FirstDayOfMonth
+GREATER
+GREATER_EQUAL
+GetDay
+GetMonth
+GetYear
+IF
+IN
+INCREASING
+INPUT
+INTEGER
+INTERNAL
+INT_LITERAL
+IS
+LABEL
+LAW_HEADING
+LAW_INCLUDE
+LAW_LABEL
+LAW_TEXT
+LBRACE
+LBRACKET
+LESSER
+LESSER_EQUAL
+LET
+LIST
+LPAREN
+LastDayOfMonth
+MATCH
+MAXIMUM
+MINIMUM
+MINUS
+MODULE_ALIAS
+MODULE_DEF
+MODULE_USE
+MONEY
+MONEY_AMOUNT
+MONTH
+MULT
+NOT
+NOT_EQUAL
+OF
+OR
+OUTPUT
+PERCENT
+PLUS
+PLUSPLUS
+RBRACE
+RBRACKET
+RPAREN
+RULE
+Round
+SCOPE
+SEMICOLON
+STATE
+STRUCT
+SUCH
+SUM
+TEXT
+THAT
+THEN
+TRUE
+UNDER_CONDITION
+WE_HAVE
+WILDCARD
+WITH
+WITH_PATT
+XOR
+YEAR
+```\n
