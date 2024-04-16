@@ -1,0 +1,508 @@
+# Defining a fictional income tax
+
+```catala
+declaration structure Individual:
+  data income content money
+  # "income" is the name of the structure field and
+  # "money" is the type of what is stored in that field.
+  # Available types include: integer, decimal, money, date, duration,
+  # and any other structure or enumreation that you declare.
+  data number_of_children content integer
+  # "income" and "number_of_children" start by a lowercase letter,
+  # they follow the snake_case convention
+```
+
+```catala
+declaration enumaration TaxCredit:
+  -- NoTaxCredit
+  # This line says that "TaxCredit" can be a "NoTaxCredit" situation.
+  -- ChildrenTaxCredit content integer
+  # This line says that alternatviely, TaxCredit can be a
+  # ChildrenTaxCredit situation. This situation carries a content
+  # of type integer corresponding to the number of children concerned
+  # by the tax credit. This means that if youre in the ChildrenTaxCredit
+  # situation, you will also have access to this number of children.
+
+```
+
+typed the data, that the program will manipulate.
+Now define the logical context in which this data will evolve
+Scopes also have to be declared in metadata
+
+```catala
+declaration scope IncomeTaxComputation:
+  input individual content Individual
+  internal fixed_percentage content decimal
+  output income_tax content money
+```
+
+- scope variables
+  - input arguments
+  - local variables
+  - outputs
+
+- input: defined only when the scope IncomeTaxComputation is called
+- internal: cannot be seen from outside the scope
+  - neither input nor output
+- output: caller scope can retrieve the computed value of the variable
+- input output: simultaneously be input and output of the scope
+
+## Article 1
+
+The income tax for an individual is defined as a fixed percentage of the
+individual's income over a year.
+
+```catala
+scope IncomeTaxComputation:
+  definition income_tax equals
+    individual.income * fixed_percentage
+```
+
+## Article 2
+
+The fixed percentage mentioned at article 1 is equal to 20 %.
+
+```catala
+scope IncomeTaxComputation
+  definition fixed_percentage equals 20 %
+
+```
+
+---
+
+# Conditional definitions
+
+## Article 3
+If the individual is in charge of 2 or more children, the the fixed
+percentage mentioned in article is equal to 15%
+
+```catala
+scope IncomeTaxComputation
+  definition fixed_percentage under condition
+    individual.number_of_children >= 2
+  consequence equals 15 %
+```
+
+### Article 3 bis
+The children eligible for application of article 3
+
+```catala
+declaration scope Child:
+  input age content integer
+  output is_eligible_article_3 condition
+  # For we declare the eligibility using the special "condition" keyword
+  # that stands for the content of the variable
+
+scope Child:
+  rule is_eligible_article_3 under condition age < 18 consequence fullfilled
+  # When defining when a condition is true, we use the special "rule" syntax
+  # instead of "definition". Rules set conditions to be "fullfilled" or
+  # "not fulfilled" conditionally
+```
+
+# Functions
+
+```catala
+declaration structure TwoBrackets:
+  data breakpoint content money
+  data rate1 content decimal
+  data rate2 content decimal
+
+declaration scope TwoBracketsTaxComputation:
+  input brackets content TwoBrackets
+  output tax_formula content money depends on income content money
+  # But for declaring the tax_formula variable, we declare it as
+  # a function: "content money depends on income content money" means a function
+  # that returns money as output (the tax) and take the income money as input
+```
+
+# Article 4
+The tax amount for a two-brackets computation is equal to the amount of income in
+each bracket multiplied by the rate of each bracket.
+
+```catala
+scope TwoBracketsTaxComputation:
+  definition tax_formula of income equals
+  # The money parameter for the "tax_formula" function is introduced as
+  # "income". The name of the parameter is your choice, and will not impact
+  # things outside this part of the definition. You can choose another
+  # name in another definition of "tax_formula".
+
+  if income <= brackets.breakpoint then
+    income * brackets.rate1
+  else (
+    brackets.breakpoint * brackets.rate1 +
+    (income - brackets.breakpoint) * brackets.rate2
+  )
+```
+
+# Article 5
+For individuals whose income is greater than $100,000, the income tax of article 1 is
+40% of the income above $100,000. Below $100,000, the income tax is 20% of the income.
+
+```catala
+declaration scope NewIncomeTaxComputation:
+  two_brackets scope TwoBracketsTaxComputation
+  # This line says that we add the item two_brackets to the context.
+  # However, the "scope" keyword tells that this item is not a piece of data
+  # but rather a subscope that we can use to compute things.
+  input individual content Individual
+  output income_tax content money
+
+scope NewIncomeTaxComputation
+  # Since the subscope "two_brackets" is like a big function we can call,
+  # we need to define its arguments. This is done below:
+  definition two_brackets.brackets equals TwoBrackets {
+    -- breakpoint: $100,000
+    -- rate1: 20%
+    -- rate2: 40%
+  }
+  # By defining the input variables "brackets" of the subscope "two_brackets",
+  # we have changed how the subscope will execute. The subscope will execute
+  # with all the values defined by the caller, then compute the value
+  # of its other variables
+
+  definition income_tax equals two_brackets.tax_formula of individual.income
+  # After the subscope has executed, you can retrieve results from it. Her,
+  # we retrieve the result of variable "tax_formula" of computed by the
+  # subscope "two_brackets". It's up to you to choose what is an input and
+  # an output of your subscope; if you make an inconsistent choice, the
+  # Catala compiler will warn you.
+```
+
+# Article 6
+Individuals earining less than $10,000 are exempted of the income tax mentioned at
+article 1.
+
+```catala
+scope NewIncomeTaxComputation:
+  definition income_tax under condition
+    individual.income <= $10,000
+  consequence equals $0
+```
+
+# Testing NewIncomeTaxComputation
+
+```catala
+declaration scope Test1:
+  # We include the scope to tax as a subscope.
+  tax_computation scope NewIncomeTaxComputation
+  output income_tax content money
+
+# To exectue that test, assuming that the Catala compiler can be
+# with "catala", enter the following command
+#    catala Interpret --scope=Test1 tutorial_en.catala_en
+
+scope Test1:
+  definition
+    tax_computation.individual
+    # We define the argument to the subscope
+  equals
+    # THe four lines below define a whole strucuter by givin a value
+    # each of its fields
+    Individual {
+      -- income: $230,000
+      -- number_of_children: 0
+    }
+
+  definition income_tax equals tax_computation.income_tax
+  # Next, we retrieve the income tax value compute it by the sub
+  # assert that it is equal to the expected value:
+  # ($230,000-100,000)*40%+100,000*20% = $72,000
+  assertion income_tax = $72,000
+```
+
+## failing test
+```catala
+declaration scope Test2:
+  tax_computation scope NewIncomeTaxComputation
+  output income_tax content money
+
+scope Test2
+  definition tax_computation.individual equals Individual {
+    -- income: $4,000
+    -- number_of_children: 0
+  }
+
+  definition income_tax equals tax_computation.income_tax
+  assertion income_tax = $0
+  # will fail due to Article 6. Conflict between rules
+```
+
+# Defining  exceptions to rules
+
+```catala
+declaration scope NewIncomeTaxComputationFixed:
+  two_brackets scope TwoBracketsTaxComputation
+  input individual content Individual
+  output tax_formula content money depends on income content money
+  context output income_tax content money
+  # This variable is tagged with "context", a new concept which we have not
+  # introduced yet. For now, ignore it as we'll come back to it in the section
+  # "Context scope variables"
+
+scope NewIncomeTaxComputationFixed:
+  definition two_brackets.brackets equals TwoBrackets {
+    -- breakpoint: $100,000
+    -- rate1: 20%
+    -- rate2: 40%
+  }
+  definition tax_formula of income equals two_brackets.tax_formula of income
+```
+
+To define an exception to a arule, you have to first label the rule, that you want to
+attach the exception to. You can put any snake_case identifier for the label:
+
+```catala
+scope NewIncomeTaxComputationFixed:
+  label article_5
+  definition income_tax equals two_brackets.tax_formula of individual.income
+
+  # Then, you can declarethe exception by referring back to the label
+  exception article_5
+  definition income_tax under condition
+    individual.income <= $10,000
+  consequence equals $0
+```
+
+## failing test shoudl now work
+
+```catala
+declaration scope Test3:
+  tax_computation scope NewIncomeTaxComputationFixed
+  output income_tax content money
+
+scope Test3
+  definition tax_computation.individual equals Individual {
+    -- income: $4,000
+    -- number_of_children: 0
+  }
+
+  definition income_tax equals tax_computation.income_tax
+  assertion income_tax = $0
+  # will fail due to Article 6. Conflict between rules
+```
+
+## Defining exceptions to groups of rules
+Note that the label systm also lets you defined more dpliccated exceptions patterns.
+Sometimes, you want to declare an exception to a group of piecewise definitions.
+To do that, simply use the same label for all the piecewise definitions.
+
+# Cumulative exceptions
+
+As we have seen, two exceptions applying at the same time to a given rule
+are in conflict, and trigger an error.
+It happens, though, that these exepctions yield the same end result:
+for convience, Catala tolerates this case and returns the common result,
+as long as there is a strict syntactic equality.
+
+## Article 6 bis
+Individuals with 7 children or more are exempted of the income tax mencioned at
+article 1
+
+```catala
+scope NewIncomeTaxComputationFixed
+  execption article_5
+  definition income_tax under condition
+    individual.number_of_children >= 7
+  consequence equals $0
+```
+
+The same problem as above would be triggered for families with an income
+below $10,000 and 7 children or more. But here Catala can detect
+that it won't matter since the result in both cases is an exemption
+
+```catala
+declaration scope Test4:
+  tax_computation scope NewIncomeTaxComputationFixed
+  output income_tax content money
+
+scope Test4
+  definition tax_computation.individual equals Individual {
+    -- income: $7,000
+    -- number_of_children: 7
+  }
+
+  definition income_tax equals tax_computation.income_tax
+  assertion income_tax = $0
+  # will fail due to Article 6. Conflict between rules
+```
+
+## Direct scope calls
+In some cases, it is useful to apply the computation of a scope only under specific circumstances. For example, some social benefits may have different computation modes depending on the situation of the beneficiary. In this case, defining each of the different modes as subscopes is tedious for two reasons: first, some input values may not be relevant for the cases the beneficiary is not concerned with, and the language will still enforce that you leave nothing undefined ; second, unnecessary computation will take place.
+For these cases, it is possible to call a scope directly, specifying all its input variables at once, and getting back its output variables in a way similar to usual subscopes.
+
+```catala
+declaration scope Test5:
+  internal individual content Individual
+  internal normal_income_tax_computation_applies content boolean
+  output income_tax content money
+
+scope Test5:
+  definition normal_income_tax_computation_applies equals true
+  definition individual equals Individual {
+    -- income: $7,000
+    -- number_of_children: 7
+  }
+  definition income_tax equals
+    if normal_income_tax_computation_applies then
+      (output of NewIncomeTaxComputationFixed with
+        { -- individual: individual }).income_tax
+    else $0 # Insert some other modes of computation here
+```
+
+Here the `output of NewIncomeTaxComputationFixed` with syntax
+triggers a call of the scope while setting its input variable individual;
+then the "dot" syntax is used to recover its income_tax output field.
+
+# Context scope variables
+
+# Article 7
+The justice system delivers fines to individuals when they committed an offense.
+The fines are deterimned based on the amount of taxes paid by the individual.
+The more taxes the individal pays, the higher the fine.
+However, the determination of the amount of taxes paid by an individual
+in this context shall include a flat tax fee of
+$500 for individals earning less than $10,000.
+
+```catala
+# To compute the basis determined for issuing the fines, we create
+declaration scope BasisForFineDetermination:
+  tax_computation scope NewIncomeTaxComputationFixed
+  # This scope will call the NewIncomeTaxComputationFixed scope that defines
+  # the proper tax computation
+  input individal content Individual
+  output basis_for_fine content money
+
+scope BasisForFineDetermination:
+  # First, we link the inptus and outputs of the two scopes.
+  definition tax_computation.individual equals individual
+  definition basis_for_fine equals tax_computation.income_tax
+
+  # Back to our little problem, the solution is here to provide from
+  # an exceptional definition for income tax for people earning less than $10,000
+  definition tax_computation.income_tax under condition
+    individual.income <= $10,000
+  consequence equals $500
+```
+
+# Article 8
+For taxation purposes, the values of the building operated for charity
+purposes can be deducted from the wealth of the individal, which
+is then capped at $2,500,000.
+
+```catala
+declaration scope WealthTax:
+  input value_of_buildings_used_for_charity content money
+  input total_wealth content money
+  internal wealth content money
+    # After the type of the variable, we can define the oreder list of states
+    # that the variable shall take before computing its final value. In each
+    # state, we'll be able to refer to the value of the previous state.
+    state total
+    state after_charity_deductions
+    state after_capping
+
+scope WealthTax:
+  definition wealth state total equals total_wealth
+  definition wealth state after_charity_deductions equals
+    wealth - # Here, "wealth" refers to the state "total"
+      value_of_buildings_used_for_charity
+  definition wealth state after_capping equals
+    if wealth >= $2,500,000 then $2,500,000 else wealth
+    # Here, "wealth" refers to the state "after_charity_deductions"
+  assertion wealth > $0
+  # Outised of the definition of "wealth", "wealth" always refers to
+  # state of the variable here "after_capping"
+```
+
+---------------------------
+---------------------------
+---------------------------
+
+# Catalalang
+- scope
+  - basic abstraction unit
+- scope variables
+  - input arguments
+  - local variables
+  - outputs
+- input: defined only when the scope IncomeTaxComputation is called
+- internal: cannot be seen from outside the scope
+  - neither input nor output
+- output: caller scope can retrieve the computed value of the variable
+- input output: simultaneously be input and output of the scope
+- context is a variant of input
+  - more permissive than "input"
+    - because it let's you re-define the `context` variable inside its
+      own scope.
+- declaration = function signature
+- allow definitions to be scattered throughout the annotation of the legislative text,
+  so that each definition is as close as possible to its location in the text
+- function
+  - define anywhere in the scope variable
+  - higher order function
+    `output tax_formula content money depends on income content money`
+- enumration
+- arithmetic operations: +, -, *, /
+- type
+  - string
+    20 % -> 0.20
+  - money
+    - rounded at nearest cent
+    - integer of cents
+    - two money amounts devided yielding a decimal
+  - booleans
+    - and, or, xor
+  - integer
+  - decimals
+  - dates and duration
+  - collections
+
+  - detection
+    - money * decimal -> amount of money rounded by the cent
+  - not allowed
+    - multiplying two amounts of money
+    - adding two dates
+- boolean
+- rules: definition of condition
+- scope
+  - caller scope has priority over callee scope for `context` variables
+  "It's as if the caller provided an extra exception for the definition of the scope variable."
+
+
+# Law
+- shape and types of data
+- enumeration of different situations
+- often values are defined elesewhere in the legislative source
+- condition
+  - true/false
+  - condition is false unless specified otherwise
+  ^= boolean
+- special case
+- exceptions / exemption
+  - article 1 is exception of article 2
+- precedence
+  - implicit, that if article 6 is applicable, then it takes precedence over article 5
+- text reuse
+  outside body of legislative text "reuses" a legal concept
+  but adding a twist on it
+- quantity in law, does not always map exactly to a unique Catala variable
+  it often happens that the law defines a unique quanity with mulitple computation steps,
+  each new one building on the previous one.
+
+# JS equivalent
+- declaration structure   -> interface
+- declaration enumaration -> enum
+- declaration scope       -> class or function
+- data                    -> const
+- definition              -> const
+- equals                  -> =
+- content                 -> type
+- input                   -> arguments
+- internal                -> private
+- output                  -> return
+- of                      -> (...)
+
+# Questions
+- [ ] what does `of` mean?
