@@ -1,3 +1,15 @@
+# Demo
+
+## Completions
+![completions](docs/assets/completions.png)
+
+## Definitions
+![definition](docs/assets/definitions.png)
+
+## Diagnostics
+![diagnostics-hover](docs/assets/diagnostics-hover.png)
+![diagnostics-output](docs/assets/diagnostics-output.png)
+
 # Command line
 
 tree-sitter parse ./server/src/catala/tree-sitter ./home/user/dev/projects/midnight/midnight-highgrass-code/packages/catala-test-app/test.catala_en
