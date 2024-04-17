@@ -12,8 +12,8 @@ using online_dictionary.Data;
 namespace online_dictionary.Migrations
 {
     [DbContext(typeof(OnlineDictionaryContext))]
-    [Migration("20240416053015_AddDateTime")]
-    partial class AddDateTime
+    [Migration("20240417120952_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,8 +46,9 @@ namespace online_dictionary.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<int>("WordSQLId")
-                        .HasColumnType("int");
+                    b.Property<string>("WordSQLId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -97,21 +98,14 @@ namespace online_dictionary.Migrations
 
             modelBuilder.Entity("online_dictionary.Models.WordSQL", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Word")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

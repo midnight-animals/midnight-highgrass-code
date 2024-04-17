@@ -4,6 +4,8 @@ using MongoDB.Driver;
 using online_dictionary.Services;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using online_dictionary.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace online_dictionary.Seeder
 {
@@ -14,27 +16,31 @@ namespace online_dictionary.Seeder
 	}
 	public class WordEntrySeeder : IWordEntrySeeder
 	{
-		private readonly IMongoCollection<WordEntry> _wordEntryFakeCollection;
-		private readonly IMongoCollection<WordEntry> _wordEntryActualCollection;
+		private readonly IMongoCollection<WordEntry> _wordEntryCollection;
+		private readonly IWordEntryService _wordEntryService;
 		private readonly IMongoClient _mongoClient;
-		public WordEntrySeeder()
+		public WordEntrySeeder(IWordEntryService wordEntryService)
 		{
             _mongoClient = new MongoClient(Environment.GetEnvironmentVariable("MONGODB_CONNECTION_URI"));
-            IMongoDatabase database_fake = _mongoClient.GetDatabase(Environment.GetEnvironmentVariable("MONGODB_DATABASE_FAKE"));
-			_wordEntryFakeCollection = database_fake.GetCollection<WordEntry>("word_entries");
 			IMongoDatabase database_real = _mongoClient.GetDatabase(Environment.GetEnvironmentVariable("MONGODB_DATABASE"));
-			_wordEntryActualCollection = database_real.GetCollection<WordEntry>("word_entries");
-
+			_wordEntryCollection = database_real.GetCollection<WordEntry>("word_entries");
+			_wordEntryService = wordEntryService;
         }
         public async Task Seed(int count)
 		{
 			try
 			{
-                // Clean up old fake data
-                await _wordEntryFakeCollection.DeleteManyAsync(FilterDefinition<WordEntry>.Empty);
-				await _wordEntryFakeCollection.InsertManyAsync(GenerateWordEntries(count));
-				Console.WriteLine("Successfully added " + count + " fake word entries to the test database");
-			} catch (Exception ex)
+				// Clean up old fake data
+				await _wordEntryService.DeleteManyWordEntriesAsync(await _wordEntryCollection.Find(_ => true).ToListAsync());
+
+				List<WordEntry> fakeWordEntries = GenerateWordEntries(count);
+				// Add new fake data
+				await _wordEntryService.AddManyWordEntryAsync(fakeWordEntries);
+				Console.WriteLine("Successfully added " + count + " fake word entries to the fake Mongo database");
+                Console.WriteLine("Successfully updated " + count + " words in MSSQL Server.");
+
+            }
+			catch (Exception ex)
 			{
 				Console.WriteLine(ex);
 			}
@@ -48,12 +54,17 @@ namespace online_dictionary.Seeder
 				var jsonString = await File.ReadAllTextAsync(filePath);
 				var data = JsonConvert.DeserializeObject<WordDefinitionJson>(jsonString);
 				var wordEntries = CleanDuplicate(data.Data);
-                await _wordEntryActualCollection.DeleteManyAsync(FilterDefinition<WordEntry>.Empty);
-                await _wordEntryActualCollection.InsertManyAsync(wordEntries);
-				Console.WriteLine("Successfully added " + data.Count + " word entries to the database");
+				// Clean up old data
+				await _wordEntryService.DeleteManyWordEntriesAsync(await _wordEntryCollection.Find(_ => true).ToListAsync());
+
+                // Add newly imported data
+                await _wordEntryService.AddManyWordEntryAsync(wordEntries);
+                Console.WriteLine("Successfully added " + data.Count + " word entries to the database");
+                Console.WriteLine("Successfully imported " + data.Count + " words to MSSQL Server.");
                 Console.WriteLine("Data imported to MongoDB successfully.");
+
             }
-			catch (Exception ex)
+            catch (Exception ex)
 			{
 				Console.WriteLine(ex);
 				throw new Exception("There is an error with importing json file", ex);
@@ -74,7 +85,6 @@ namespace online_dictionary.Seeder
 		}
 		private List<WordEntry> GenerateWordEntries(int count)
 		{
-			//To-do: learn how to generate only unique words here.
 			var wordList = new HashSet<string>();
 			var faker = new Faker<WordEntry>()
 			.RuleFor(w => w.Word, f =>

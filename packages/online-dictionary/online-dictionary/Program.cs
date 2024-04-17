@@ -7,9 +7,7 @@ using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//Environment.SetEnvironmentVariable(
-//	"MONGODB_CONNECTION_URI",
-//	builder.Configuration.GetSection("MongoDB").Value.ConnectionURI);
+ConfigureEnvVariables();
 ConfigureServices(builder.Services);
 
 // Add services to the container.
@@ -21,11 +19,11 @@ var app = builder.Build();
 // Seed the database with fake data (Uncomment to seed)
 using (var scope = app.Services.CreateScope())
 {
-   var services = scope.ServiceProvider;
-   var dataSeeder = services.GetRequiredService<IWordEntrySeeder>(); // Assuming you have registered IDataSeeder in ConfigureServices
-																	 
-	//await dataSeeder.Seed(100);
-	//await dataSeeder.Import(@"words_definitions.json");
+    var services = scope.ServiceProvider;
+    var dataSeeder = services.GetRequiredService<IWordEntrySeeder>(); // Assuming you have registered IDataSeeder in ConfigureServices
+
+    await dataSeeder.Seed(100);
+    //await dataSeeder.Import(@"words_definitions.json");
 }
 
 // Configure the HTTP request pipeline.
@@ -48,21 +46,27 @@ app.MapControllers();
 
 app.Run();
 
-void ConfigureServices (IServiceCollection services)
+void ConfigureEnvVariables()
 {
-	services.AddControllers();
-	services.AddScoped<IWordEntryService, WordEntryService>();
-    //services.AddScoped<IWordEntrySeeder, WordEntrySeeder>();
     //Environment.SetEnvironmentVariable("MONGODB_CONNECTION_URI", builder.Configuration.GetSection("MongoDB")
     //    .GetSection("ConnectionURI").Value);
     //Environment.SetEnvironmentVariable("MONGODB_DATABASE", builder.Configuration.GetSection("MongoDB")
     //    .GetSection("Database").Value);
     //Environment.SetEnvironmentVariable("MONGODB_DATABASE_FAKE", builder.Configuration.GetSection("MongoDB")
     //    .GetSection("DatabaseFake").Value);
-    Environment.SetEnvironmentVariable("SQLSERVER_CONNECTION_URI", builder.Configuration.GetSection("SQLServer")
-        .GetSection("ConnectionURI").Value);
-    services.AddSingleton<WordEntryService>();
-	services.AddSingleton<IWordEntrySeeder, WordEntrySeeder>();
-    //builder.Services.AddDbContext<OnlineDictionaryContext>(options =>
-    //    options.UseSqlServer(Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION_URI")));
+    if (Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION_URI") == null)
+        Environment.SetEnvironmentVariable("SQLSERVER_CONNECTION_URI", builder.Configuration.GetSection("SQLServer")
+            .GetSection("ConnectionURI").Value);
+    if (Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION_URI_FAKE") == null)
+        Environment.SetEnvironmentVariable("SQLSERVER_CONNECTION_URI_FAKE", builder.Configuration.GetSection("SQLServer")
+            .GetSection("ConnectionURIFake").Value);
+}
+void ConfigureServices (IServiceCollection services)
+{
+    services.AddScoped<IWordEntryService, WordEntryService>();
+    services.AddScoped<IWordEntrySeeder, WordEntrySeeder>();
+    services.AddDbContext<OnlineDictionaryContext>(options =>
+    {
+        options.UseSqlServer(Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION_URI"));
+    });
 }

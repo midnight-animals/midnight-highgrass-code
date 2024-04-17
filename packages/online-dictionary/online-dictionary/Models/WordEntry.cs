@@ -6,8 +6,9 @@ namespace online_dictionary.Models
     public class WordEntry
     {
         [BsonId]
-        [BsonRepresentation(BsonType.String)]
-        public string Word { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string? Id { get; set; }
+        public string Word { get; set; } = null!;
         public List<Interpretation>? Interpretations { get; set; } = null!;
     }
 }
