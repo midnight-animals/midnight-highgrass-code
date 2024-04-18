@@ -1,5 +1,5529 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`parser allSyntax 1`] = `
+{
+  "content": "
+\`\`\`catala
+declaration structure Individual:
+  data income content money
+  data income content boolean
+  data income content integer
+  data income content decimal
+  data income content date
+\`\`\`
+
+\`\`\`catala
+declaration enumeration TaxCredit:
+#####
+##### <<<<< split up diagnostic error from catala cli
+#####
+-- NoTaxCredit
+-- ChildrenTaxCredit content integer
+\`\`\`
+
+\`\`\`catala
+declaration scope IncomeTaxComputation:
+  input individual content Individual
+  internal fixed_percentage content decimal
+  output income_tax content money
+\`\`\`
+
+\`\`\`catala
+scope IncomeTaxComputation:
+  definition income_tax equals
+    individual.income * fixed_percentage
+\`\`\`
+
+\`\`\`catala
+scope IncomeTaxComputation:
+  definition fixed_percentage under condition
+    individual.number_of_children >= 2
+  consequence equals 15 %
+\`\`\`
+
+\`\`\`catala
+declaration scope Child:
+  input age content integer
+  output is_eligible_article_3 condition
+
+scope Child:
+  rule is_eligible_article_3 under condition age < 18 consequence fulfilled
+\`\`\`
+
+\`\`\`catala
+declaration structure TwoBrackets:
+  data breakpoint content money
+  data rate1 content decimal
+  data rate2 content decimal
+
+declaration scope TwoBracketsTaxComputation:
+  input brackets content TwoBrackets
+  output tax_formula content money depends on income content money
+\`\`\`
+
+\`\`\`catala
+scope TwoBracketsTaxComputation:
+  definition tax_formula of income equals
+    if income <= brackets.breakpoint then
+      income * brackets.rate1
+    else (
+      brackets.breakpoint * brackets.rate1 +
+      (income - brackets.breakpoint) * brackets.rate2
+    )
+\`\`\`
+
+\`\`\`catala
+declaration scope NewIncomeTaxComputation:
+  two_brackets scope TwoBracketsTaxComputation
+  input individual content Individual
+  output income_tax content money
+
+scope NewIncomeTaxComputation:
+  definition two_brackets.brackets equals TwoBrackets {
+    -- breakpoint: $100,000
+    -- rate1: 20%
+    -- rate2: 40%
+  }
+
+  definition income_tax equals two_brackets.tax_formula of individual.income
+\`\`\`
+
+
+\`\`\`catala
+scope NewIncomeTaxComputation:
+  definition income_tax under condition
+    individual.income <= $10,000
+  consequence equals $0
+\`\`\`
+
+\`\`\`catala
+declaration scope Test1:
+  tax_computation scope NewIncomeTaxComputation
+  output income_tax content money
+
+scope Test1:
+  definition
+    tax_computation.individual
+  equals
+    Individual {
+      -- income: $230,000
+      -- number_of_children: 0
+    }
+
+  definition income_tax equals tax_computation.income_tax
+  assertion income_tax = $72,000
+\`\`\`
+
+\`\`\`catala
+declaration scope Test2:
+  tax_computation scope NewIncomeTaxComputation
+  output income_tax content money
+
+scope Test2:
+  definition tax_computation.individual equals Individual {
+    -- income: $4,000
+    -- number_of_children: 0
+  }
+
+  definition income_tax equals tax_computation.income_tax
+  assertion income_tax = $0
+\`\`\`
+
+
+\`\`\`catala
+declaration scope NewIncomeTaxComputationFixed:
+  two_brackets scope TwoBracketsTaxComputation
+  input individual content Individual
+  output tax_formula content money depends on income content money
+  context output income_tax content money
+
+scope NewIncomeTaxComputationFixed:
+  definition two_brackets.brackets equals TwoBrackets {
+    -- breakpoint: $100,000
+    -- rate1: 20%
+    -- rate2: 40%
+  }
+  definition tax_formula of income equals two_brackets.tax_formula of income
+\`\`\`
+
+\`\`\`catala
+scope NewIncomeTaxComputationFixed:
+  label article_5
+  definition income_tax equals two_brackets.tax_formula of individual.income
+
+  exception article_5
+  definition income_tax under condition
+    individual.income <= $10,000
+  consequence equals $0
+\`\`\`
+
+\`\`\`catala
+declaration scope Test3:
+  tax_computation scope NewIncomeTaxComputationFixed
+  output income_tax content money
+
+scope Test3:
+  definition tax_computation.individual equals Individual {
+    -- income: $4,000
+    -- number_of_children: 0
+  }
+
+  definition income_tax equals tax_computation.income_tax
+  assertion income_tax = $0
+\`\`\`
+\`\`\`catala
+scope NewIncomeTaxComputationFixed:
+  exception article_5
+  definition income_tax under condition
+    individual.number_of_children >= 7
+  consequence equals $0
+\`\`\`
+
+\`\`\`catala
+declaration scope Test4:
+  tax_computation scope NewIncomeTaxComputationFixed
+  output income_tax content money
+
+scope Test4:
+  definition tax_computation.individual equals Individual {
+    -- income: $7,000
+    -- number_of_children: 7
+  }
+
+  definition income_tax equals tax_computation.income_tax
+  assertion income_tax = $0
+\`\`\`
+
+\`\`\`catala
+declaration scope Test5:
+  internal individual content Individual
+  internal normal_income_tax_computation_applies content boolean
+  output income_tax content money
+
+scope Test5:
+  definition normal_income_tax_computation_applies equals true
+  definition individual equals Individual {
+    -- income: $7,000
+    -- number_of_children: 7
+  }
+  definition income_tax equals
+    if normal_income_tax_computation_applies then
+      (output of NewIncomeTaxComputationFixed with
+        { -- individual: individual }).income_tax
+    else $0 # Insert some other modes of computation here
+\`\`\`
+
+\`\`\`catala
+declaration scope BasisForFineDetermination:
+  tax_computation scope NewIncomeTaxComputationFixed
+  input individal content Individual
+  output basis_for_fine content money
+
+scope BasisForFineDetermination:
+  definition tax_computation.individual equals individual
+  definition basis_for_fine equals tax_computation.income_tax
+
+  definition tax_computation.income_tax under condition
+    individual.income <= $10,000
+  consequence equals $500
+\`\`\`
+
+\`\`\`catala
+declaration scope WealthTax:
+  input value_of_buildings_used_for_charity content money
+  input total_wealth content money
+  internal wealth content money
+    state total
+    state after_charity_deductions
+    state after_capping
+
+scope WealthTax:
+  definition wealth state total equals total_wealth
+  definition wealth state after_charity_deductions equals
+      value_of_buildings_used_for_charity
+  definition wealth state after_capping equals
+    if wealth >= $2,500,000 then $2,500,000 else wealth
+  assertion wealth > $0
+\`\`\`
+
+",
+  "props": {
+    "enum_struct_name": [
+      {
+        "endPosition": {
+          "column": 32,
+          "row": 1,
+        },
+        "startPosition": {
+          "column": 22,
+          "row": 1,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 33,
+          "row": 10,
+        },
+        "startPosition": {
+          "column": 24,
+          "row": 10,
+        },
+        "text": "TaxCredit",
+      },
+      {
+        "endPosition": {
+          "column": 37,
+          "row": 20,
+        },
+        "startPosition": {
+          "column": 27,
+          "row": 20,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 33,
+          "row": 48,
+        },
+        "startPosition": {
+          "column": 22,
+          "row": 48,
+        },
+        "text": "TwoBrackets",
+      },
+      {
+        "endPosition": {
+          "column": 36,
+          "row": 54,
+        },
+        "startPosition": {
+          "column": 25,
+          "row": 54,
+        },
+        "text": "TwoBrackets",
+      },
+      {
+        "endPosition": {
+          "column": 37,
+          "row": 72,
+        },
+        "startPosition": {
+          "column": 27,
+          "row": 72,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 53,
+          "row": 76,
+        },
+        "startPosition": {
+          "column": 42,
+          "row": 76,
+        },
+        "text": "TwoBrackets",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 102,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 102,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 57,
+          "row": 117,
+        },
+        "startPosition": {
+          "column": 47,
+          "row": 117,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 37,
+          "row": 130,
+        },
+        "startPosition": {
+          "column": 27,
+          "row": 130,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 53,
+          "row": 135,
+        },
+        "startPosition": {
+          "column": 42,
+          "row": 135,
+        },
+        "text": "TwoBrackets",
+      },
+      {
+        "endPosition": {
+          "column": 57,
+          "row": 160,
+        },
+        "startPosition": {
+          "column": 47,
+          "row": 160,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 57,
+          "row": 182,
+        },
+        "startPosition": {
+          "column": 47,
+          "row": 182,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 40,
+          "row": 193,
+        },
+        "startPosition": {
+          "column": 30,
+          "row": 193,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 41,
+          "row": 199,
+        },
+        "startPosition": {
+          "column": 31,
+          "row": 199,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 36,
+          "row": 213,
+        },
+        "startPosition": {
+          "column": 26,
+          "row": 213,
+        },
+        "text": "Individual",
+      },
+    ],
+    "field_name": [
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 2,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 2,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 3,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 3,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 4,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 4,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 5,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 5,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 6,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 6,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 21,
+          "row": 28,
+        },
+        "startPosition": {
+          "column": 15,
+          "row": 28,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 33,
+          "row": 34,
+        },
+        "startPosition": {
+          "column": 15,
+          "row": 34,
+        },
+        "text": "number_of_children",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 49,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 49,
+        },
+        "text": "breakpoint",
+      },
+      {
+        "endPosition": {
+          "column": 12,
+          "row": 50,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 50,
+        },
+        "text": "rate1",
+      },
+      {
+        "endPosition": {
+          "column": 12,
+          "row": 51,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 51,
+        },
+        "text": "rate2",
+      },
+      {
+        "endPosition": {
+          "column": 36,
+          "row": 61,
+        },
+        "startPosition": {
+          "column": 26,
+          "row": 61,
+        },
+        "text": "breakpoint",
+      },
+      {
+        "endPosition": {
+          "column": 29,
+          "row": 62,
+        },
+        "startPosition": {
+          "column": 24,
+          "row": 62,
+        },
+        "text": "rate1",
+      },
+      {
+        "endPosition": {
+          "column": 25,
+          "row": 64,
+        },
+        "startPosition": {
+          "column": 15,
+          "row": 64,
+        },
+        "text": "breakpoint",
+      },
+      {
+        "endPosition": {
+          "column": 42,
+          "row": 64,
+        },
+        "startPosition": {
+          "column": 37,
+          "row": 64,
+        },
+        "text": "rate1",
+      },
+      {
+        "endPosition": {
+          "column": 35,
+          "row": 65,
+        },
+        "startPosition": {
+          "column": 25,
+          "row": 65,
+        },
+        "text": "breakpoint",
+      },
+      {
+        "endPosition": {
+          "column": 53,
+          "row": 65,
+        },
+        "startPosition": {
+          "column": 48,
+          "row": 65,
+        },
+        "text": "rate2",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 77,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 77,
+        },
+        "text": "breakpoint",
+      },
+      {
+        "endPosition": {
+          "column": 12,
+          "row": 78,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 78,
+        },
+        "text": "rate1",
+      },
+      {
+        "endPosition": {
+          "column": 12,
+          "row": 79,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 79,
+        },
+        "text": "rate2",
+      },
+      {
+        "endPosition": {
+          "column": 55,
+          "row": 82,
+        },
+        "startPosition": {
+          "column": 44,
+          "row": 82,
+        },
+        "text": "tax_formula",
+      },
+      {
+        "endPosition": {
+          "column": 76,
+          "row": 82,
+        },
+        "startPosition": {
+          "column": 70,
+          "row": 82,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 21,
+          "row": 89,
+        },
+        "startPosition": {
+          "column": 15,
+          "row": 89,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 15,
+          "row": 103,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 103,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 27,
+          "row": 104,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 104,
+        },
+        "text": "number_of_children",
+      },
+      {
+        "endPosition": {
+          "column": 57,
+          "row": 107,
+        },
+        "startPosition": {
+          "column": 47,
+          "row": 107,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 118,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 118,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 25,
+          "row": 119,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 119,
+        },
+        "text": "number_of_children",
+      },
+      {
+        "endPosition": {
+          "column": 57,
+          "row": 122,
+        },
+        "startPosition": {
+          "column": 47,
+          "row": 122,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 136,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 136,
+        },
+        "text": "breakpoint",
+      },
+      {
+        "endPosition": {
+          "column": 12,
+          "row": 137,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 137,
+        },
+        "text": "rate1",
+      },
+      {
+        "endPosition": {
+          "column": 12,
+          "row": 138,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 138,
+        },
+        "text": "rate2",
+      },
+      {
+        "endPosition": {
+          "column": 66,
+          "row": 140,
+        },
+        "startPosition": {
+          "column": 55,
+          "row": 140,
+        },
+        "text": "tax_formula",
+      },
+      {
+        "endPosition": {
+          "column": 55,
+          "row": 146,
+        },
+        "startPosition": {
+          "column": 44,
+          "row": 146,
+        },
+        "text": "tax_formula",
+      },
+      {
+        "endPosition": {
+          "column": 76,
+          "row": 146,
+        },
+        "startPosition": {
+          "column": 70,
+          "row": 146,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 21,
+          "row": 150,
+        },
+        "startPosition": {
+          "column": 15,
+          "row": 150,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 161,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 161,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 25,
+          "row": 162,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 162,
+        },
+        "text": "number_of_children",
+      },
+      {
+        "endPosition": {
+          "column": 57,
+          "row": 165,
+        },
+        "startPosition": {
+          "column": 47,
+          "row": 165,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 33,
+          "row": 172,
+        },
+        "startPosition": {
+          "column": 15,
+          "row": 172,
+        },
+        "text": "number_of_children",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 183,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 183,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 25,
+          "row": 184,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 184,
+        },
+        "text": "number_of_children",
+      },
+      {
+        "endPosition": {
+          "column": 57,
+          "row": 187,
+        },
+        "startPosition": {
+          "column": 47,
+          "row": 187,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 200,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 200,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 25,
+          "row": 201,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 201,
+        },
+        "text": "number_of_children",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 206,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 206,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 49,
+          "row": 206,
+        },
+        "startPosition": {
+          "column": 39,
+          "row": 206,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 61,
+          "row": 218,
+        },
+        "startPosition": {
+          "column": 51,
+          "row": 218,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 21,
+          "row": 221,
+        },
+        "startPosition": {
+          "column": 15,
+          "row": 221,
+        },
+        "text": "income",
+      },
+    ],
+    "scope": [
+      {
+        "endPosition": {
+          "column": 38,
+          "row": 19,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 19,
+        },
+        "text": "IncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 26,
+          "row": 26,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 26,
+        },
+        "text": "IncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 26,
+          "row": 32,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 32,
+        },
+        "text": "IncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 39,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 39,
+        },
+        "text": "Child",
+      },
+      {
+        "endPosition": {
+          "column": 11,
+          "row": 43,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 43,
+        },
+        "text": "Child",
+      },
+      {
+        "endPosition": {
+          "column": 43,
+          "row": 53,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 53,
+        },
+        "text": "TwoBracketsTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 31,
+          "row": 59,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 59,
+        },
+        "text": "TwoBracketsTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 41,
+          "row": 70,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 70,
+        },
+        "text": "NewIncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 46,
+          "row": 71,
+        },
+        "startPosition": {
+          "column": 21,
+          "row": 71,
+        },
+        "text": "TwoBracketsTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 29,
+          "row": 75,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 75,
+        },
+        "text": "NewIncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 29,
+          "row": 87,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 87,
+        },
+        "text": "NewIncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 94,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 94,
+        },
+        "text": "Test1",
+      },
+      {
+        "endPosition": {
+          "column": 47,
+          "row": 95,
+        },
+        "startPosition": {
+          "column": 24,
+          "row": 95,
+        },
+        "text": "NewIncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 11,
+          "row": 98,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 98,
+        },
+        "text": "Test1",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 112,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 112,
+        },
+        "text": "Test2",
+      },
+      {
+        "endPosition": {
+          "column": 47,
+          "row": 113,
+        },
+        "startPosition": {
+          "column": 24,
+          "row": 113,
+        },
+        "text": "NewIncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 11,
+          "row": 116,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 116,
+        },
+        "text": "Test2",
+      },
+      {
+        "endPosition": {
+          "column": 46,
+          "row": 128,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 128,
+        },
+        "text": "NewIncomeTaxComputationFixed",
+      },
+      {
+        "endPosition": {
+          "column": 46,
+          "row": 129,
+        },
+        "startPosition": {
+          "column": 21,
+          "row": 129,
+        },
+        "text": "TwoBracketsTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 34,
+          "row": 134,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 134,
+        },
+        "text": "NewIncomeTaxComputationFixed",
+      },
+      {
+        "endPosition": {
+          "column": 34,
+          "row": 144,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 144,
+        },
+        "text": "NewIncomeTaxComputationFixed",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 155,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 155,
+        },
+        "text": "Test3",
+      },
+      {
+        "endPosition": {
+          "column": 52,
+          "row": 156,
+        },
+        "startPosition": {
+          "column": 24,
+          "row": 156,
+        },
+        "text": "NewIncomeTaxComputationFixed",
+      },
+      {
+        "endPosition": {
+          "column": 11,
+          "row": 159,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 159,
+        },
+        "text": "Test3",
+      },
+      {
+        "endPosition": {
+          "column": 34,
+          "row": 169,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 169,
+        },
+        "text": "NewIncomeTaxComputationFixed",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 177,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 177,
+        },
+        "text": "Test4",
+      },
+      {
+        "endPosition": {
+          "column": 52,
+          "row": 178,
+        },
+        "startPosition": {
+          "column": 24,
+          "row": 178,
+        },
+        "text": "NewIncomeTaxComputationFixed",
+      },
+      {
+        "endPosition": {
+          "column": 11,
+          "row": 181,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 181,
+        },
+        "text": "Test4",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 192,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 192,
+        },
+        "text": "Test5",
+      },
+      {
+        "endPosition": {
+          "column": 11,
+          "row": 197,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 197,
+        },
+        "text": "Test5",
+      },
+      {
+        "endPosition": {
+          "column": 45,
+          "row": 205,
+        },
+        "startPosition": {
+          "column": 17,
+          "row": 205,
+        },
+        "text": "NewIncomeTaxComputationFixed",
+      },
+      {
+        "endPosition": {
+          "column": 43,
+          "row": 211,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 211,
+        },
+        "text": "BasisForFineDetermination",
+      },
+      {
+        "endPosition": {
+          "column": 52,
+          "row": 212,
+        },
+        "startPosition": {
+          "column": 24,
+          "row": 212,
+        },
+        "text": "NewIncomeTaxComputationFixed",
+      },
+      {
+        "endPosition": {
+          "column": 31,
+          "row": 216,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 216,
+        },
+        "text": "BasisForFineDetermination",
+      },
+      {
+        "endPosition": {
+          "column": 27,
+          "row": 226,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 226,
+        },
+        "text": "WealthTax",
+      },
+      {
+        "endPosition": {
+          "column": 15,
+          "row": 234,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 234,
+        },
+        "text": "WealthTax",
+      },
+    ],
+    "variable": [
+      {
+        "endPosition": {
+          "column": 18,
+          "row": 20,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 20,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 27,
+          "row": 21,
+        },
+        "startPosition": {
+          "column": 11,
+          "row": 21,
+        },
+        "text": "fixed_percentage",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 22,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 22,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 27,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 27,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 28,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 28,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 40,
+          "row": 28,
+        },
+        "startPosition": {
+          "column": 24,
+          "row": 28,
+        },
+        "text": "fixed_percentage",
+      },
+      {
+        "endPosition": {
+          "column": 29,
+          "row": 33,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 33,
+        },
+        "text": "fixed_percentage",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 34,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 34,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 11,
+          "row": 40,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 40,
+        },
+        "text": "age",
+      },
+      {
+        "endPosition": {
+          "column": 30,
+          "row": 41,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 41,
+        },
+        "text": "is_eligible_article_3",
+      },
+      {
+        "endPosition": {
+          "column": 28,
+          "row": 44,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 44,
+        },
+        "text": "is_eligible_article_3",
+      },
+      {
+        "endPosition": {
+          "column": 48,
+          "row": 44,
+        },
+        "startPosition": {
+          "column": 45,
+          "row": 44,
+        },
+        "text": "age",
+      },
+      {
+        "endPosition": {
+          "column": 16,
+          "row": 54,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 54,
+        },
+        "text": "brackets",
+      },
+      {
+        "endPosition": {
+          "column": 20,
+          "row": 55,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 55,
+        },
+        "text": "tax_formula",
+      },
+      {
+        "endPosition": {
+          "column": 52,
+          "row": 55,
+        },
+        "startPosition": {
+          "column": 46,
+          "row": 55,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 24,
+          "row": 60,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 60,
+        },
+        "text": "tax_formula",
+      },
+      {
+        "endPosition": {
+          "column": 34,
+          "row": 60,
+        },
+        "startPosition": {
+          "column": 28,
+          "row": 60,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 61,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 61,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 25,
+          "row": 61,
+        },
+        "startPosition": {
+          "column": 17,
+          "row": 61,
+        },
+        "text": "brackets",
+      },
+      {
+        "endPosition": {
+          "column": 12,
+          "row": 62,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 62,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 62,
+        },
+        "startPosition": {
+          "column": 15,
+          "row": 62,
+        },
+        "text": "brackets",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 64,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 64,
+        },
+        "text": "brackets",
+      },
+      {
+        "endPosition": {
+          "column": 36,
+          "row": 64,
+        },
+        "startPosition": {
+          "column": 28,
+          "row": 64,
+        },
+        "text": "brackets",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 65,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 65,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 24,
+          "row": 65,
+        },
+        "startPosition": {
+          "column": 16,
+          "row": 65,
+        },
+        "text": "brackets",
+      },
+      {
+        "endPosition": {
+          "column": 47,
+          "row": 65,
+        },
+        "startPosition": {
+          "column": 39,
+          "row": 65,
+        },
+        "text": "brackets",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 71,
+        },
+        "startPosition": {
+          "column": 2,
+          "row": 71,
+        },
+        "text": "two_brackets",
+      },
+      {
+        "endPosition": {
+          "column": 18,
+          "row": 72,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 72,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 73,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 73,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 25,
+          "row": 76,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 76,
+        },
+        "text": "two_brackets",
+      },
+      {
+        "endPosition": {
+          "column": 34,
+          "row": 76,
+        },
+        "startPosition": {
+          "column": 26,
+          "row": 76,
+        },
+        "text": "brackets",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 82,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 82,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 43,
+          "row": 82,
+        },
+        "startPosition": {
+          "column": 31,
+          "row": 82,
+        },
+        "text": "two_brackets",
+      },
+      {
+        "endPosition": {
+          "column": 69,
+          "row": 82,
+        },
+        "startPosition": {
+          "column": 59,
+          "row": 82,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 88,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 88,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 89,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 89,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 95,
+        },
+        "startPosition": {
+          "column": 2,
+          "row": 95,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 96,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 96,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 100,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 100,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 30,
+          "row": 100,
+        },
+        "startPosition": {
+          "column": 20,
+          "row": 100,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 107,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 107,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 46,
+          "row": 107,
+        },
+        "startPosition": {
+          "column": 31,
+          "row": 107,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 22,
+          "row": 108,
+        },
+        "startPosition": {
+          "column": 12,
+          "row": 108,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 113,
+        },
+        "startPosition": {
+          "column": 2,
+          "row": 113,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 114,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 114,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 28,
+          "row": 117,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 117,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 39,
+          "row": 117,
+        },
+        "startPosition": {
+          "column": 29,
+          "row": 117,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 122,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 122,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 46,
+          "row": 122,
+        },
+        "startPosition": {
+          "column": 31,
+          "row": 122,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 22,
+          "row": 123,
+        },
+        "startPosition": {
+          "column": 12,
+          "row": 123,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 129,
+        },
+        "startPosition": {
+          "column": 2,
+          "row": 129,
+        },
+        "text": "two_brackets",
+      },
+      {
+        "endPosition": {
+          "column": 18,
+          "row": 130,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 130,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 20,
+          "row": 131,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 131,
+        },
+        "text": "tax_formula",
+      },
+      {
+        "endPosition": {
+          "column": 52,
+          "row": 131,
+        },
+        "startPosition": {
+          "column": 46,
+          "row": 131,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 27,
+          "row": 132,
+        },
+        "startPosition": {
+          "column": 17,
+          "row": 132,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 25,
+          "row": 135,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 135,
+        },
+        "text": "two_brackets",
+      },
+      {
+        "endPosition": {
+          "column": 34,
+          "row": 135,
+        },
+        "startPosition": {
+          "column": 26,
+          "row": 135,
+        },
+        "text": "brackets",
+      },
+      {
+        "endPosition": {
+          "column": 24,
+          "row": 140,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 140,
+        },
+        "text": "tax_formula",
+      },
+      {
+        "endPosition": {
+          "column": 34,
+          "row": 140,
+        },
+        "startPosition": {
+          "column": 28,
+          "row": 140,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 54,
+          "row": 140,
+        },
+        "startPosition": {
+          "column": 42,
+          "row": 140,
+        },
+        "text": "two_brackets",
+      },
+      {
+        "endPosition": {
+          "column": 76,
+          "row": 140,
+        },
+        "startPosition": {
+          "column": 70,
+          "row": 140,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 146,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 146,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 43,
+          "row": 146,
+        },
+        "startPosition": {
+          "column": 31,
+          "row": 146,
+        },
+        "text": "two_brackets",
+      },
+      {
+        "endPosition": {
+          "column": 69,
+          "row": 146,
+        },
+        "startPosition": {
+          "column": 59,
+          "row": 146,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 149,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 149,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 150,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 150,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 156,
+        },
+        "startPosition": {
+          "column": 2,
+          "row": 156,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 157,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 157,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 28,
+          "row": 160,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 160,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 39,
+          "row": 160,
+        },
+        "startPosition": {
+          "column": 29,
+          "row": 160,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 165,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 165,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 46,
+          "row": 165,
+        },
+        "startPosition": {
+          "column": 31,
+          "row": 165,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 22,
+          "row": 166,
+        },
+        "startPosition": {
+          "column": 12,
+          "row": 166,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 171,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 171,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 172,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 172,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 178,
+        },
+        "startPosition": {
+          "column": 2,
+          "row": 178,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 179,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 179,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 28,
+          "row": 182,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 182,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 39,
+          "row": 182,
+        },
+        "startPosition": {
+          "column": 29,
+          "row": 182,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 187,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 187,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 46,
+          "row": 187,
+        },
+        "startPosition": {
+          "column": 31,
+          "row": 187,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 22,
+          "row": 188,
+        },
+        "startPosition": {
+          "column": 12,
+          "row": 188,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 21,
+          "row": 193,
+        },
+        "startPosition": {
+          "column": 11,
+          "row": 193,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 48,
+          "row": 194,
+        },
+        "startPosition": {
+          "column": 11,
+          "row": 194,
+        },
+        "text": "normal_income_tax_computation_applies",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 195,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 195,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 50,
+          "row": 198,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 198,
+        },
+        "text": "normal_income_tax_computation_applies",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 199,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 199,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 203,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 203,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 44,
+          "row": 204,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 204,
+        },
+        "text": "normal_income_tax_computation_applies",
+      },
+      {
+        "endPosition": {
+          "column": 35,
+          "row": 206,
+        },
+        "startPosition": {
+          "column": 25,
+          "row": 206,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 212,
+        },
+        "startPosition": {
+          "column": 2,
+          "row": 212,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 213,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 213,
+        },
+        "text": "individal",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 214,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 214,
+        },
+        "text": "basis_for_fine",
+      },
+      {
+        "endPosition": {
+          "column": 28,
+          "row": 217,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 217,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 39,
+          "row": 217,
+        },
+        "startPosition": {
+          "column": 29,
+          "row": 217,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 57,
+          "row": 217,
+        },
+        "startPosition": {
+          "column": 47,
+          "row": 217,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 27,
+          "row": 218,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 218,
+        },
+        "text": "basis_for_fine",
+      },
+      {
+        "endPosition": {
+          "column": 50,
+          "row": 218,
+        },
+        "startPosition": {
+          "column": 35,
+          "row": 218,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 28,
+          "row": 220,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 220,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 39,
+          "row": 220,
+        },
+        "startPosition": {
+          "column": 29,
+          "row": 220,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 221,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 221,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 43,
+          "row": 227,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 227,
+        },
+        "text": "value_of_buildings_used_for_charity",
+      },
+      {
+        "endPosition": {
+          "column": 20,
+          "row": 228,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 228,
+        },
+        "text": "total_wealth",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 229,
+        },
+        "startPosition": {
+          "column": 11,
+          "row": 229,
+        },
+        "text": "wealth",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 235,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 235,
+        },
+        "text": "wealth",
+      },
+      {
+        "endPosition": {
+          "column": 51,
+          "row": 235,
+        },
+        "startPosition": {
+          "column": 39,
+          "row": 235,
+        },
+        "text": "total_wealth",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 236,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 236,
+        },
+        "text": "wealth",
+      },
+      {
+        "endPosition": {
+          "column": 41,
+          "row": 237,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 237,
+        },
+        "text": "value_of_buildings_used_for_charity",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 238,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 238,
+        },
+        "text": "wealth",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 239,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 239,
+        },
+        "text": "wealth",
+      },
+      {
+        "endPosition": {
+          "column": 55,
+          "row": 239,
+        },
+        "startPosition": {
+          "column": 49,
+          "row": 239,
+        },
+        "text": "wealth",
+      },
+      {
+        "endPosition": {
+          "column": 18,
+          "row": 240,
+        },
+        "startPosition": {
+          "column": 12,
+          "row": 240,
+        },
+        "text": "wealth",
+      },
+    ],
+  },
+}
+`;
+
+exports[`parser cli 1`] = `
+{
+  "content": "
+\`\`\`catala
+declaration structure Individual:
+  data income content money
+  data income content boolean
+  data income content integer
+  data income content decimal
+  data income content date
+\`\`\`
+
+\`\`\`catala
+declaration enumeration TaxCredit:
+#####
+##### <<<<< split up diagnostic error from catala cli
+#####
+-- NoTaxCredit
+-- ChildrenTaxCredit content integer
+\`\`\`
+
+\`\`\`catala
+declaration scope IncomeTaxComputation:
+  input individual content Individual
+  internal fixed_percentage content decimal
+  output income_tax content money
+\`\`\`
+
+\`\`\`catala
+scope IncomeTaxComputation:
+  definition income_tax equals
+    individual.income * fixed_percentage
+\`\`\`
+
+\`\`\`catala
+scope IncomeTaxComputation:
+  definition fixed_percentage under condition
+    individual.number_of_children >= 2
+  consequence equals 15 %
+\`\`\`
+
+\`\`\`catala
+declaration scope Child:
+  input age content integer
+  output is_eligible_article_3 condition
+
+scope Child:
+  rule is_eligible_article_3 under condition age < 18 consequence fulfilled
+\`\`\`
+
+\`\`\`catala
+declaration structure TwoBrackets:
+  data breakpoint content money
+  data rate1 content decimal
+  data rate2 content decimal
+
+declaration scope TwoBracketsTaxComputation:
+  input brackets content TwoBrackets
+  output tax_formula content money depends on income content money
+\`\`\`
+
+\`\`\`catala
+scope TwoBracketsTaxComputation:
+  definition tax_formula of income equals
+    if income <= brackets.breakpoint then
+      income * brackets.rate1
+    else (
+      brackets.breakpoint * brackets.rate1 +
+      (income - brackets.breakpoint) * brackets.rate2
+    )
+\`\`\`
+
+\`\`\`catala
+declaration scope NewIncomeTaxComputation:
+  two_brackets scope TwoBracketsTaxComputation
+  input individual content Individual
+  output income_tax content money
+
+scope NewIncomeTaxComputation:
+  definition two_brackets.brackets equals TwoBrackets {
+    -- breakpoint: $100,000
+    -- rate1: 20%
+    -- rate2: 40%
+  }
+
+  definition income_tax equals two_brackets.tax_formula of individual.income
+\`\`\`
+
+
+\`\`\`catala
+scope NewIncomeTaxComputation:
+  definition income_tax under condition
+    individual.income <= $10,000
+  consequence equals $0
+\`\`\`
+
+\`\`\`catala
+declaration scope Test1:
+  tax_computation scope NewIncomeTaxComputation
+  output income_tax content money
+
+scope Test1:
+  definition
+    tax_computation.individual
+  equals
+    Individual {
+      -- income: $230,000
+      -- number_of_children: 0
+    }
+
+  definition income_tax equals tax_computation.income_tax
+  assertion income_tax = $72,000
+\`\`\`
+
+\`\`\`catala
+declaration scope Test2:
+  tax_computation scope NewIncomeTaxComputation
+  output income_tax content money
+
+scope Test2:
+  definition tax_computation.individual equals Individual {
+    -- income: $4,000
+    -- number_of_children: 0
+  }
+
+  definition income_tax equals tax_computation.income_tax
+  assertion income_tax = $0
+\`\`\`
+
+
+\`\`\`catala
+declaration scope NewIncomeTaxComputationFixed:
+  two_brackets scope TwoBracketsTaxComputation
+  input individual content Individual
+  output tax_formula content money depends on income content money
+  context output income_tax content money
+
+scope NewIncomeTaxComputationFixed:
+  definition two_brackets.brackets equals TwoBrackets {
+    -- breakpoint: $100,000
+    -- rate1: 20%
+    -- rate2: 40%
+  }
+  definition tax_formula of income equals two_brackets.tax_formula of income
+\`\`\`
+
+\`\`\`catala
+scope NewIncomeTaxComputationFixed:
+  label article_5
+  definition income_tax equals two_brackets.tax_formula of individual.income
+
+  exception article_5
+  definition income_tax under condition
+    individual.income <= $10,000
+  consequence equals $0
+\`\`\`
+
+\`\`\`catala
+declaration scope Test3:
+  tax_computation scope NewIncomeTaxComputationFixed
+  output income_tax content money
+
+scope Test3:
+  definition tax_computation.individual equals Individual {
+    -- income: $4,000
+    -- number_of_children: 0
+  }
+
+  definition income_tax equals tax_computation.income_tax
+  assertion income_tax = $0
+\`\`\`
+\`\`\`catala
+scope NewIncomeTaxComputationFixed:
+  exception article_5
+  definition income_tax under condition
+    individual.number_of_children >= 7
+  consequence equals $0
+\`\`\`
+
+\`\`\`catala
+declaration scope Test4:
+  tax_computation scope NewIncomeTaxComputationFixed
+  output income_tax content money
+
+scope Test4:
+  definition tax_computation.individual equals Individual {
+    -- income: $7,000
+    -- number_of_children: 7
+  }
+
+  definition income_tax equals tax_computation.income_tax
+  assertion income_tax = $0
+\`\`\`
+
+\`\`\`catala
+declaration scope Test5:
+  internal individual content Individual
+  internal normal_income_tax_computation_applies content boolean
+  output income_tax content money
+
+scope Test5:
+  definition normal_income_tax_computation_applies equals true
+  definition individual equals Individual {
+    -- income: $7,000
+    -- number_of_children: 7
+  }
+  definition income_tax equals
+    if normal_income_tax_computation_applies then
+      (output of NewIncomeTaxComputationFixed with
+        { -- individual: individual }).income_tax
+    else $0 # Insert some other modes of computation here
+\`\`\`
+
+\`\`\`catala
+declaration scope BasisForFineDetermination:
+  tax_computation scope NewIncomeTaxComputationFixed
+  input individal content Individual
+  output basis_for_fine content money
+
+scope BasisForFineDetermination:
+  definition tax_computation.individual equals individual
+  definition basis_for_fine equals tax_computation.income_tax
+
+  definition tax_computation.income_tax under condition
+    individual.income <= $10,000
+  consequence equals $500
+\`\`\`
+
+\`\`\`catala
+declaration scope WealthTax:
+  input value_of_buildings_used_for_charity content money
+  input total_wealth content money
+  internal wealth content money
+    state total
+    state after_charity_deductions
+    state after_capping
+
+scope WealthTax:
+  definition wealth state total equals total_wealth
+  definition wealth state after_charity_deductions equals
+      value_of_buildings_used_for_charity
+  definition wealth state after_capping equals
+    if wealth >= $2,500,000 then $2,500,000 else wealth
+  assertion wealth > $0
+\`\`\`
+
+",
+  "props": {
+    "enum_struct_name": [
+      {
+        "endPosition": {
+          "column": 32,
+          "row": 1,
+        },
+        "startPosition": {
+          "column": 22,
+          "row": 1,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 33,
+          "row": 10,
+        },
+        "startPosition": {
+          "column": 24,
+          "row": 10,
+        },
+        "text": "TaxCredit",
+      },
+      {
+        "endPosition": {
+          "column": 37,
+          "row": 20,
+        },
+        "startPosition": {
+          "column": 27,
+          "row": 20,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 33,
+          "row": 48,
+        },
+        "startPosition": {
+          "column": 22,
+          "row": 48,
+        },
+        "text": "TwoBrackets",
+      },
+      {
+        "endPosition": {
+          "column": 36,
+          "row": 54,
+        },
+        "startPosition": {
+          "column": 25,
+          "row": 54,
+        },
+        "text": "TwoBrackets",
+      },
+      {
+        "endPosition": {
+          "column": 37,
+          "row": 72,
+        },
+        "startPosition": {
+          "column": 27,
+          "row": 72,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 53,
+          "row": 76,
+        },
+        "startPosition": {
+          "column": 42,
+          "row": 76,
+        },
+        "text": "TwoBrackets",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 102,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 102,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 57,
+          "row": 117,
+        },
+        "startPosition": {
+          "column": 47,
+          "row": 117,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 37,
+          "row": 130,
+        },
+        "startPosition": {
+          "column": 27,
+          "row": 130,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 53,
+          "row": 135,
+        },
+        "startPosition": {
+          "column": 42,
+          "row": 135,
+        },
+        "text": "TwoBrackets",
+      },
+      {
+        "endPosition": {
+          "column": 57,
+          "row": 160,
+        },
+        "startPosition": {
+          "column": 47,
+          "row": 160,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 57,
+          "row": 182,
+        },
+        "startPosition": {
+          "column": 47,
+          "row": 182,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 40,
+          "row": 193,
+        },
+        "startPosition": {
+          "column": 30,
+          "row": 193,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 41,
+          "row": 199,
+        },
+        "startPosition": {
+          "column": 31,
+          "row": 199,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 36,
+          "row": 213,
+        },
+        "startPosition": {
+          "column": 26,
+          "row": 213,
+        },
+        "text": "Individual",
+      },
+    ],
+    "field_name": [
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 2,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 2,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 3,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 3,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 4,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 4,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 5,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 5,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 6,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 6,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 21,
+          "row": 28,
+        },
+        "startPosition": {
+          "column": 15,
+          "row": 28,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 33,
+          "row": 34,
+        },
+        "startPosition": {
+          "column": 15,
+          "row": 34,
+        },
+        "text": "number_of_children",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 49,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 49,
+        },
+        "text": "breakpoint",
+      },
+      {
+        "endPosition": {
+          "column": 12,
+          "row": 50,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 50,
+        },
+        "text": "rate1",
+      },
+      {
+        "endPosition": {
+          "column": 12,
+          "row": 51,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 51,
+        },
+        "text": "rate2",
+      },
+      {
+        "endPosition": {
+          "column": 36,
+          "row": 61,
+        },
+        "startPosition": {
+          "column": 26,
+          "row": 61,
+        },
+        "text": "breakpoint",
+      },
+      {
+        "endPosition": {
+          "column": 29,
+          "row": 62,
+        },
+        "startPosition": {
+          "column": 24,
+          "row": 62,
+        },
+        "text": "rate1",
+      },
+      {
+        "endPosition": {
+          "column": 25,
+          "row": 64,
+        },
+        "startPosition": {
+          "column": 15,
+          "row": 64,
+        },
+        "text": "breakpoint",
+      },
+      {
+        "endPosition": {
+          "column": 42,
+          "row": 64,
+        },
+        "startPosition": {
+          "column": 37,
+          "row": 64,
+        },
+        "text": "rate1",
+      },
+      {
+        "endPosition": {
+          "column": 35,
+          "row": 65,
+        },
+        "startPosition": {
+          "column": 25,
+          "row": 65,
+        },
+        "text": "breakpoint",
+      },
+      {
+        "endPosition": {
+          "column": 53,
+          "row": 65,
+        },
+        "startPosition": {
+          "column": 48,
+          "row": 65,
+        },
+        "text": "rate2",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 77,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 77,
+        },
+        "text": "breakpoint",
+      },
+      {
+        "endPosition": {
+          "column": 12,
+          "row": 78,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 78,
+        },
+        "text": "rate1",
+      },
+      {
+        "endPosition": {
+          "column": 12,
+          "row": 79,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 79,
+        },
+        "text": "rate2",
+      },
+      {
+        "endPosition": {
+          "column": 55,
+          "row": 82,
+        },
+        "startPosition": {
+          "column": 44,
+          "row": 82,
+        },
+        "text": "tax_formula",
+      },
+      {
+        "endPosition": {
+          "column": 76,
+          "row": 82,
+        },
+        "startPosition": {
+          "column": 70,
+          "row": 82,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 21,
+          "row": 89,
+        },
+        "startPosition": {
+          "column": 15,
+          "row": 89,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 15,
+          "row": 103,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 103,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 27,
+          "row": 104,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 104,
+        },
+        "text": "number_of_children",
+      },
+      {
+        "endPosition": {
+          "column": 57,
+          "row": 107,
+        },
+        "startPosition": {
+          "column": 47,
+          "row": 107,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 118,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 118,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 25,
+          "row": 119,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 119,
+        },
+        "text": "number_of_children",
+      },
+      {
+        "endPosition": {
+          "column": 57,
+          "row": 122,
+        },
+        "startPosition": {
+          "column": 47,
+          "row": 122,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 136,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 136,
+        },
+        "text": "breakpoint",
+      },
+      {
+        "endPosition": {
+          "column": 12,
+          "row": 137,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 137,
+        },
+        "text": "rate1",
+      },
+      {
+        "endPosition": {
+          "column": 12,
+          "row": 138,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 138,
+        },
+        "text": "rate2",
+      },
+      {
+        "endPosition": {
+          "column": 66,
+          "row": 140,
+        },
+        "startPosition": {
+          "column": 55,
+          "row": 140,
+        },
+        "text": "tax_formula",
+      },
+      {
+        "endPosition": {
+          "column": 55,
+          "row": 146,
+        },
+        "startPosition": {
+          "column": 44,
+          "row": 146,
+        },
+        "text": "tax_formula",
+      },
+      {
+        "endPosition": {
+          "column": 76,
+          "row": 146,
+        },
+        "startPosition": {
+          "column": 70,
+          "row": 146,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 21,
+          "row": 150,
+        },
+        "startPosition": {
+          "column": 15,
+          "row": 150,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 161,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 161,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 25,
+          "row": 162,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 162,
+        },
+        "text": "number_of_children",
+      },
+      {
+        "endPosition": {
+          "column": 57,
+          "row": 165,
+        },
+        "startPosition": {
+          "column": 47,
+          "row": 165,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 33,
+          "row": 172,
+        },
+        "startPosition": {
+          "column": 15,
+          "row": 172,
+        },
+        "text": "number_of_children",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 183,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 183,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 25,
+          "row": 184,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 184,
+        },
+        "text": "number_of_children",
+      },
+      {
+        "endPosition": {
+          "column": 57,
+          "row": 187,
+        },
+        "startPosition": {
+          "column": 47,
+          "row": 187,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 200,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 200,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 25,
+          "row": 201,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 201,
+        },
+        "text": "number_of_children",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 206,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 206,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 49,
+          "row": 206,
+        },
+        "startPosition": {
+          "column": 39,
+          "row": 206,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 61,
+          "row": 218,
+        },
+        "startPosition": {
+          "column": 51,
+          "row": 218,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 21,
+          "row": 221,
+        },
+        "startPosition": {
+          "column": 15,
+          "row": 221,
+        },
+        "text": "income",
+      },
+    ],
+    "scope": [
+      {
+        "endPosition": {
+          "column": 38,
+          "row": 19,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 19,
+        },
+        "text": "IncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 26,
+          "row": 26,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 26,
+        },
+        "text": "IncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 26,
+          "row": 32,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 32,
+        },
+        "text": "IncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 39,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 39,
+        },
+        "text": "Child",
+      },
+      {
+        "endPosition": {
+          "column": 11,
+          "row": 43,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 43,
+        },
+        "text": "Child",
+      },
+      {
+        "endPosition": {
+          "column": 43,
+          "row": 53,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 53,
+        },
+        "text": "TwoBracketsTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 31,
+          "row": 59,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 59,
+        },
+        "text": "TwoBracketsTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 41,
+          "row": 70,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 70,
+        },
+        "text": "NewIncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 46,
+          "row": 71,
+        },
+        "startPosition": {
+          "column": 21,
+          "row": 71,
+        },
+        "text": "TwoBracketsTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 29,
+          "row": 75,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 75,
+        },
+        "text": "NewIncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 29,
+          "row": 87,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 87,
+        },
+        "text": "NewIncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 94,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 94,
+        },
+        "text": "Test1",
+      },
+      {
+        "endPosition": {
+          "column": 47,
+          "row": 95,
+        },
+        "startPosition": {
+          "column": 24,
+          "row": 95,
+        },
+        "text": "NewIncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 11,
+          "row": 98,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 98,
+        },
+        "text": "Test1",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 112,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 112,
+        },
+        "text": "Test2",
+      },
+      {
+        "endPosition": {
+          "column": 47,
+          "row": 113,
+        },
+        "startPosition": {
+          "column": 24,
+          "row": 113,
+        },
+        "text": "NewIncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 11,
+          "row": 116,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 116,
+        },
+        "text": "Test2",
+      },
+      {
+        "endPosition": {
+          "column": 46,
+          "row": 128,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 128,
+        },
+        "text": "NewIncomeTaxComputationFixed",
+      },
+      {
+        "endPosition": {
+          "column": 46,
+          "row": 129,
+        },
+        "startPosition": {
+          "column": 21,
+          "row": 129,
+        },
+        "text": "TwoBracketsTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 34,
+          "row": 134,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 134,
+        },
+        "text": "NewIncomeTaxComputationFixed",
+      },
+      {
+        "endPosition": {
+          "column": 34,
+          "row": 144,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 144,
+        },
+        "text": "NewIncomeTaxComputationFixed",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 155,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 155,
+        },
+        "text": "Test3",
+      },
+      {
+        "endPosition": {
+          "column": 52,
+          "row": 156,
+        },
+        "startPosition": {
+          "column": 24,
+          "row": 156,
+        },
+        "text": "NewIncomeTaxComputationFixed",
+      },
+      {
+        "endPosition": {
+          "column": 11,
+          "row": 159,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 159,
+        },
+        "text": "Test3",
+      },
+      {
+        "endPosition": {
+          "column": 34,
+          "row": 169,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 169,
+        },
+        "text": "NewIncomeTaxComputationFixed",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 177,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 177,
+        },
+        "text": "Test4",
+      },
+      {
+        "endPosition": {
+          "column": 52,
+          "row": 178,
+        },
+        "startPosition": {
+          "column": 24,
+          "row": 178,
+        },
+        "text": "NewIncomeTaxComputationFixed",
+      },
+      {
+        "endPosition": {
+          "column": 11,
+          "row": 181,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 181,
+        },
+        "text": "Test4",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 192,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 192,
+        },
+        "text": "Test5",
+      },
+      {
+        "endPosition": {
+          "column": 11,
+          "row": 197,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 197,
+        },
+        "text": "Test5",
+      },
+      {
+        "endPosition": {
+          "column": 45,
+          "row": 205,
+        },
+        "startPosition": {
+          "column": 17,
+          "row": 205,
+        },
+        "text": "NewIncomeTaxComputationFixed",
+      },
+      {
+        "endPosition": {
+          "column": 43,
+          "row": 211,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 211,
+        },
+        "text": "BasisForFineDetermination",
+      },
+      {
+        "endPosition": {
+          "column": 52,
+          "row": 212,
+        },
+        "startPosition": {
+          "column": 24,
+          "row": 212,
+        },
+        "text": "NewIncomeTaxComputationFixed",
+      },
+      {
+        "endPosition": {
+          "column": 31,
+          "row": 216,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 216,
+        },
+        "text": "BasisForFineDetermination",
+      },
+      {
+        "endPosition": {
+          "column": 27,
+          "row": 226,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 226,
+        },
+        "text": "WealthTax",
+      },
+      {
+        "endPosition": {
+          "column": 15,
+          "row": 234,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 234,
+        },
+        "text": "WealthTax",
+      },
+    ],
+    "variable": [
+      {
+        "endPosition": {
+          "column": 18,
+          "row": 20,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 20,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 27,
+          "row": 21,
+        },
+        "startPosition": {
+          "column": 11,
+          "row": 21,
+        },
+        "text": "fixed_percentage",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 22,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 22,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 27,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 27,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 28,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 28,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 40,
+          "row": 28,
+        },
+        "startPosition": {
+          "column": 24,
+          "row": 28,
+        },
+        "text": "fixed_percentage",
+      },
+      {
+        "endPosition": {
+          "column": 29,
+          "row": 33,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 33,
+        },
+        "text": "fixed_percentage",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 34,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 34,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 11,
+          "row": 40,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 40,
+        },
+        "text": "age",
+      },
+      {
+        "endPosition": {
+          "column": 30,
+          "row": 41,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 41,
+        },
+        "text": "is_eligible_article_3",
+      },
+      {
+        "endPosition": {
+          "column": 28,
+          "row": 44,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 44,
+        },
+        "text": "is_eligible_article_3",
+      },
+      {
+        "endPosition": {
+          "column": 48,
+          "row": 44,
+        },
+        "startPosition": {
+          "column": 45,
+          "row": 44,
+        },
+        "text": "age",
+      },
+      {
+        "endPosition": {
+          "column": 16,
+          "row": 54,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 54,
+        },
+        "text": "brackets",
+      },
+      {
+        "endPosition": {
+          "column": 20,
+          "row": 55,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 55,
+        },
+        "text": "tax_formula",
+      },
+      {
+        "endPosition": {
+          "column": 52,
+          "row": 55,
+        },
+        "startPosition": {
+          "column": 46,
+          "row": 55,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 24,
+          "row": 60,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 60,
+        },
+        "text": "tax_formula",
+      },
+      {
+        "endPosition": {
+          "column": 34,
+          "row": 60,
+        },
+        "startPosition": {
+          "column": 28,
+          "row": 60,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 61,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 61,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 25,
+          "row": 61,
+        },
+        "startPosition": {
+          "column": 17,
+          "row": 61,
+        },
+        "text": "brackets",
+      },
+      {
+        "endPosition": {
+          "column": 12,
+          "row": 62,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 62,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 62,
+        },
+        "startPosition": {
+          "column": 15,
+          "row": 62,
+        },
+        "text": "brackets",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 64,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 64,
+        },
+        "text": "brackets",
+      },
+      {
+        "endPosition": {
+          "column": 36,
+          "row": 64,
+        },
+        "startPosition": {
+          "column": 28,
+          "row": 64,
+        },
+        "text": "brackets",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 65,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 65,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 24,
+          "row": 65,
+        },
+        "startPosition": {
+          "column": 16,
+          "row": 65,
+        },
+        "text": "brackets",
+      },
+      {
+        "endPosition": {
+          "column": 47,
+          "row": 65,
+        },
+        "startPosition": {
+          "column": 39,
+          "row": 65,
+        },
+        "text": "brackets",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 71,
+        },
+        "startPosition": {
+          "column": 2,
+          "row": 71,
+        },
+        "text": "two_brackets",
+      },
+      {
+        "endPosition": {
+          "column": 18,
+          "row": 72,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 72,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 73,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 73,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 25,
+          "row": 76,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 76,
+        },
+        "text": "two_brackets",
+      },
+      {
+        "endPosition": {
+          "column": 34,
+          "row": 76,
+        },
+        "startPosition": {
+          "column": 26,
+          "row": 76,
+        },
+        "text": "brackets",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 82,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 82,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 43,
+          "row": 82,
+        },
+        "startPosition": {
+          "column": 31,
+          "row": 82,
+        },
+        "text": "two_brackets",
+      },
+      {
+        "endPosition": {
+          "column": 69,
+          "row": 82,
+        },
+        "startPosition": {
+          "column": 59,
+          "row": 82,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 88,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 88,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 89,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 89,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 95,
+        },
+        "startPosition": {
+          "column": 2,
+          "row": 95,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 96,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 96,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 100,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 100,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 30,
+          "row": 100,
+        },
+        "startPosition": {
+          "column": 20,
+          "row": 100,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 107,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 107,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 46,
+          "row": 107,
+        },
+        "startPosition": {
+          "column": 31,
+          "row": 107,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 22,
+          "row": 108,
+        },
+        "startPosition": {
+          "column": 12,
+          "row": 108,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 113,
+        },
+        "startPosition": {
+          "column": 2,
+          "row": 113,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 114,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 114,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 28,
+          "row": 117,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 117,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 39,
+          "row": 117,
+        },
+        "startPosition": {
+          "column": 29,
+          "row": 117,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 122,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 122,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 46,
+          "row": 122,
+        },
+        "startPosition": {
+          "column": 31,
+          "row": 122,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 22,
+          "row": 123,
+        },
+        "startPosition": {
+          "column": 12,
+          "row": 123,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 129,
+        },
+        "startPosition": {
+          "column": 2,
+          "row": 129,
+        },
+        "text": "two_brackets",
+      },
+      {
+        "endPosition": {
+          "column": 18,
+          "row": 130,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 130,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 20,
+          "row": 131,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 131,
+        },
+        "text": "tax_formula",
+      },
+      {
+        "endPosition": {
+          "column": 52,
+          "row": 131,
+        },
+        "startPosition": {
+          "column": 46,
+          "row": 131,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 27,
+          "row": 132,
+        },
+        "startPosition": {
+          "column": 17,
+          "row": 132,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 25,
+          "row": 135,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 135,
+        },
+        "text": "two_brackets",
+      },
+      {
+        "endPosition": {
+          "column": 34,
+          "row": 135,
+        },
+        "startPosition": {
+          "column": 26,
+          "row": 135,
+        },
+        "text": "brackets",
+      },
+      {
+        "endPosition": {
+          "column": 24,
+          "row": 140,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 140,
+        },
+        "text": "tax_formula",
+      },
+      {
+        "endPosition": {
+          "column": 34,
+          "row": 140,
+        },
+        "startPosition": {
+          "column": 28,
+          "row": 140,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 54,
+          "row": 140,
+        },
+        "startPosition": {
+          "column": 42,
+          "row": 140,
+        },
+        "text": "two_brackets",
+      },
+      {
+        "endPosition": {
+          "column": 76,
+          "row": 140,
+        },
+        "startPosition": {
+          "column": 70,
+          "row": 140,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 146,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 146,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 43,
+          "row": 146,
+        },
+        "startPosition": {
+          "column": 31,
+          "row": 146,
+        },
+        "text": "two_brackets",
+      },
+      {
+        "endPosition": {
+          "column": 69,
+          "row": 146,
+        },
+        "startPosition": {
+          "column": 59,
+          "row": 146,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 149,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 149,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 150,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 150,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 156,
+        },
+        "startPosition": {
+          "column": 2,
+          "row": 156,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 157,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 157,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 28,
+          "row": 160,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 160,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 39,
+          "row": 160,
+        },
+        "startPosition": {
+          "column": 29,
+          "row": 160,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 165,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 165,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 46,
+          "row": 165,
+        },
+        "startPosition": {
+          "column": 31,
+          "row": 165,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 22,
+          "row": 166,
+        },
+        "startPosition": {
+          "column": 12,
+          "row": 166,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 171,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 171,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 172,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 172,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 178,
+        },
+        "startPosition": {
+          "column": 2,
+          "row": 178,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 179,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 179,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 28,
+          "row": 182,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 182,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 39,
+          "row": 182,
+        },
+        "startPosition": {
+          "column": 29,
+          "row": 182,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 187,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 187,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 46,
+          "row": 187,
+        },
+        "startPosition": {
+          "column": 31,
+          "row": 187,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 22,
+          "row": 188,
+        },
+        "startPosition": {
+          "column": 12,
+          "row": 188,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 21,
+          "row": 193,
+        },
+        "startPosition": {
+          "column": 11,
+          "row": 193,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 48,
+          "row": 194,
+        },
+        "startPosition": {
+          "column": 11,
+          "row": 194,
+        },
+        "text": "normal_income_tax_computation_applies",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 195,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 195,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 50,
+          "row": 198,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 198,
+        },
+        "text": "normal_income_tax_computation_applies",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 199,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 199,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 203,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 203,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 44,
+          "row": 204,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 204,
+        },
+        "text": "normal_income_tax_computation_applies",
+      },
+      {
+        "endPosition": {
+          "column": 35,
+          "row": 206,
+        },
+        "startPosition": {
+          "column": 25,
+          "row": 206,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 212,
+        },
+        "startPosition": {
+          "column": 2,
+          "row": 212,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 213,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 213,
+        },
+        "text": "individal",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 214,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 214,
+        },
+        "text": "basis_for_fine",
+      },
+      {
+        "endPosition": {
+          "column": 28,
+          "row": 217,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 217,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 39,
+          "row": 217,
+        },
+        "startPosition": {
+          "column": 29,
+          "row": 217,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 57,
+          "row": 217,
+        },
+        "startPosition": {
+          "column": 47,
+          "row": 217,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 27,
+          "row": 218,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 218,
+        },
+        "text": "basis_for_fine",
+      },
+      {
+        "endPosition": {
+          "column": 50,
+          "row": 218,
+        },
+        "startPosition": {
+          "column": 35,
+          "row": 218,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 28,
+          "row": 220,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 220,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 39,
+          "row": 220,
+        },
+        "startPosition": {
+          "column": 29,
+          "row": 220,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 221,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 221,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 43,
+          "row": 227,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 227,
+        },
+        "text": "value_of_buildings_used_for_charity",
+      },
+      {
+        "endPosition": {
+          "column": 20,
+          "row": 228,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 228,
+        },
+        "text": "total_wealth",
+      },
+      {
+        "endPosition": {
+          "column": 17,
+          "row": 229,
+        },
+        "startPosition": {
+          "column": 11,
+          "row": 229,
+        },
+        "text": "wealth",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 235,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 235,
+        },
+        "text": "wealth",
+      },
+      {
+        "endPosition": {
+          "column": 51,
+          "row": 235,
+        },
+        "startPosition": {
+          "column": 39,
+          "row": 235,
+        },
+        "text": "total_wealth",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 236,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 236,
+        },
+        "text": "wealth",
+      },
+      {
+        "endPosition": {
+          "column": 41,
+          "row": 237,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 237,
+        },
+        "text": "value_of_buildings_used_for_charity",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 238,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 238,
+        },
+        "text": "wealth",
+      },
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 239,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 239,
+        },
+        "text": "wealth",
+      },
+      {
+        "endPosition": {
+          "column": 55,
+          "row": 239,
+        },
+        "startPosition": {
+          "column": 49,
+          "row": 239,
+        },
+        "text": "wealth",
+      },
+      {
+        "endPosition": {
+          "column": 18,
+          "row": 240,
+        },
+        "startPosition": {
+          "column": 12,
+          "row": 240,
+        },
+        "text": "wealth",
+      },
+    ],
+  },
+}
+`;
+
+exports[`parser combination_1structDecl_1scopeDecl 1`] = `
+{
+  "content": "
+\`\`\`catala
+declaration structure Individual:
+  data income content money
+\`\`\`
+
+\`\`\`catala
+declaration scope IncomeTaxComputation:
+  input individual content Individual
+\`\`\`
+",
+  "props": {
+    "enum_struct_name": [
+      {
+        "endPosition": {
+          "column": 32,
+          "row": 1,
+        },
+        "startPosition": {
+          "column": 22,
+          "row": 1,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 37,
+          "row": 7,
+        },
+        "startPosition": {
+          "column": 27,
+          "row": 7,
+        },
+        "text": "Individual",
+      },
+    ],
+    "field_name": [
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 2,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 2,
+        },
+        "text": "income",
+      },
+    ],
+    "scope": [
+      {
+        "endPosition": {
+          "column": 38,
+          "row": 6,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 6,
+        },
+        "text": "IncomeTaxComputation",
+      },
+    ],
+    "variable": [
+      {
+        "endPosition": {
+          "column": 18,
+          "row": 7,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 7,
+        },
+        "text": "individual",
+      },
+    ],
+  },
+}
+`;
+
+exports[`parser combination_1structDecl_1scopeDecl_1scope 1`] = `
+{
+  "content": "
+\`\`\`catala
+declaration structure Individual:
+  data income content money
+\`\`\`
+\`\`\`catala
+declaration scope IncomeTaxComputation:
+  input individual content Individual
+\`\`\`
+\`\`\`catala
+scope IncomeTaxComputation:
+  definition income_tax equals
+    individual.income * fixed_percentage
+\`\`\`
+",
+  "props": {
+    "enum_struct_name": [
+      {
+        "endPosition": {
+          "column": 32,
+          "row": 1,
+        },
+        "startPosition": {
+          "column": 22,
+          "row": 1,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 37,
+          "row": 6,
+        },
+        "startPosition": {
+          "column": 27,
+          "row": 6,
+        },
+        "text": "Individual",
+      },
+    ],
+    "field_name": [
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 2,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 2,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 21,
+          "row": 11,
+        },
+        "startPosition": {
+          "column": 15,
+          "row": 11,
+        },
+        "text": "income",
+      },
+    ],
+    "scope": [
+      {
+        "endPosition": {
+          "column": 38,
+          "row": 5,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 5,
+        },
+        "text": "IncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 26,
+          "row": 9,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 9,
+        },
+        "text": "IncomeTaxComputation",
+      },
+    ],
+    "variable": [
+      {
+        "endPosition": {
+          "column": 18,
+          "row": 6,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 6,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 23,
+          "row": 10,
+        },
+        "startPosition": {
+          "column": 13,
+          "row": 10,
+        },
+        "text": "income_tax",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 11,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 11,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 40,
+          "row": 11,
+        },
+        "startPosition": {
+          "column": 24,
+          "row": 11,
+        },
+        "text": "fixed_percentage",
+      },
+    ],
+  },
+}
+`;
+
+exports[`parser combination_1structDecl_2scopeDecl 1`] = `
+{
+  "content": "
+\`\`\`catala
+declaration structure Individual:
+  data income content money
+\`\`\`
+
+\`\`\`catala
+declaration scope IncomeTaxComputation:
+  input individual content Individual
+\`\`\`
+
+\`\`\`catala
+declaration scope NewIncomeTaxComputation:
+  input individual content Individual
+\`\`\`
+",
+  "props": {
+    "enum_struct_name": [
+      {
+        "endPosition": {
+          "column": 32,
+          "row": 1,
+        },
+        "startPosition": {
+          "column": 22,
+          "row": 1,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 37,
+          "row": 7,
+        },
+        "startPosition": {
+          "column": 27,
+          "row": 7,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 37,
+          "row": 12,
+        },
+        "startPosition": {
+          "column": 27,
+          "row": 12,
+        },
+        "text": "Individual",
+      },
+    ],
+    "field_name": [
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 2,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 2,
+        },
+        "text": "income",
+      },
+    ],
+    "scope": [
+      {
+        "endPosition": {
+          "column": 38,
+          "row": 6,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 6,
+        },
+        "text": "IncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 41,
+          "row": 11,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 11,
+        },
+        "text": "NewIncomeTaxComputation",
+      },
+    ],
+    "variable": [
+      {
+        "endPosition": {
+          "column": 18,
+          "row": 7,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 7,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 18,
+          "row": 12,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 12,
+        },
+        "text": "individual",
+      },
+    ],
+  },
+}
+`;
+
 exports[`parser combination_declStruct_declScope_scope 1`] = `
 {
   "content": "
@@ -131,6 +5655,283 @@ scope IncomeTaxComputation:
 }
 `;
 
+exports[`parser definition_fieldName 1`] = `
+{
+  "content": "
+\`\`\`catala
+declaration scope NewIncomeTaxComputation:
+  input individual content Individual
+\`\`\`
+
+\`\`\`catala
+scope Test1:
+  definition
+    tax_computation.individual
+  equals
+    Individual {
+      -- income: $230,000
+      -- number_of_children: 0
+    }
+\`\`\`
+",
+  "props": {
+    "enum_struct_name": [
+      {
+        "endPosition": {
+          "column": 37,
+          "row": 2,
+        },
+        "startPosition": {
+          "column": 27,
+          "row": 2,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 10,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 10,
+        },
+        "text": "Individual",
+      },
+    ],
+    "field_name": [
+      {
+        "endPosition": {
+          "column": 15,
+          "row": 11,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 11,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 27,
+          "row": 12,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 12,
+        },
+        "text": "number_of_children",
+      },
+    ],
+    "scope": [
+      {
+        "endPosition": {
+          "column": 41,
+          "row": 1,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 1,
+        },
+        "text": "NewIncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 11,
+          "row": 6,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 6,
+        },
+        "text": "Test1",
+      },
+    ],
+    "variable": [
+      {
+        "endPosition": {
+          "column": 18,
+          "row": 2,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 2,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 8,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 8,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 30,
+          "row": 8,
+        },
+        "startPosition": {
+          "column": 20,
+          "row": 8,
+        },
+        "text": "individual",
+      },
+    ],
+  },
+}
+`;
+
+exports[`parser definition_fieldName_variable 1`] = `
+{
+  "content": "
+\`\`\`catala
+declaration structure Individual:
+\`\`\`
+
+\`\`\`catala
+declaration scope IncomeTaxComputation:
+  input individual content Individual
+\`\`\`
+
+\`\`\`catala
+scope Test1:
+  definition
+    tax_computation.individual
+  equals
+    Individual {
+      -- income: $230,000
+      -- number_of_children: 0
+    }
+\`\`\`
+",
+  "props": {
+    "enum_struct_name": [
+      {
+        "endPosition": {
+          "column": 32,
+          "row": 1,
+        },
+        "startPosition": {
+          "column": 22,
+          "row": 1,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 37,
+          "row": 6,
+        },
+        "startPosition": {
+          "column": 27,
+          "row": 6,
+        },
+        "text": "Individual",
+      },
+      {
+        "endPosition": {
+          "column": 14,
+          "row": 14,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 14,
+        },
+        "text": "Individual",
+      },
+    ],
+    "field_name": [
+      {
+        "endPosition": {
+          "column": 15,
+          "row": 15,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 15,
+        },
+        "text": "income",
+      },
+      {
+        "endPosition": {
+          "column": 27,
+          "row": 16,
+        },
+        "startPosition": {
+          "column": 9,
+          "row": 16,
+        },
+        "text": "number_of_children",
+      },
+    ],
+    "scope": [
+      {
+        "endPosition": {
+          "column": 38,
+          "row": 5,
+        },
+        "startPosition": {
+          "column": 18,
+          "row": 5,
+        },
+        "text": "IncomeTaxComputation",
+      },
+      {
+        "endPosition": {
+          "column": 11,
+          "row": 10,
+        },
+        "startPosition": {
+          "column": 6,
+          "row": 10,
+        },
+        "text": "Test1",
+      },
+    ],
+    "variable": [
+      {
+        "endPosition": {
+          "column": 18,
+          "row": 6,
+        },
+        "startPosition": {
+          "column": 8,
+          "row": 6,
+        },
+        "text": "individual",
+      },
+      {
+        "endPosition": {
+          "column": 19,
+          "row": 12,
+        },
+        "startPosition": {
+          "column": 4,
+          "row": 12,
+        },
+        "text": "tax_computation",
+      },
+      {
+        "endPosition": {
+          "column": 30,
+          "row": 12,
+        },
+        "startPosition": {
+          "column": 20,
+          "row": 12,
+        },
+        "text": "individual",
+      },
+    ],
+  },
+}
+`;
+
 exports[`parser scope_and_definition 1`] = `
 {
   "content": "
@@ -164,6 +5965,45 @@ declaration structure Individual:
 \`\`\`
 ",
   "props": {},
+}
+`;
+
+exports[`parser struct_decl_1field 1`] = `
+{
+  "content": "
+\`\`\`catala
+declaration structure Individual:
+  data income content money
+\`\`\`
+",
+  "props": {
+    "enum_struct_name": [
+      {
+        "endPosition": {
+          "column": 32,
+          "row": 1,
+        },
+        "startPosition": {
+          "column": 22,
+          "row": 1,
+        },
+        "text": "Individual",
+      },
+    ],
+    "field_name": [
+      {
+        "endPosition": {
+          "column": 13,
+          "row": 2,
+        },
+        "startPosition": {
+          "column": 7,
+          "row": 2,
+        },
+        "text": "income",
+      },
+    ],
+  },
 }
 `;
 

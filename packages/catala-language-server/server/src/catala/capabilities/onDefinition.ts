@@ -6,7 +6,7 @@ import {
 } from '../../shared/CatalaTypes';
 import { SyntaxNode } from 'tree-sitter';
 import { pathToFileURL } from 'url';
-import { mergeArrays } from '../../shared/arrayUtils';
+import { intersectArrays, mergeArrays } from '../../shared/arrayUtils';
 import { convertTreeSitterNodePositionToLocationLink } from '../../shared/vscodeUtils';
 
 type CompoundMap = `${CatalaGrammarTypes}+${CatalaGrammarTypes}`;
@@ -56,10 +56,11 @@ function filterByPositionInTree(
   const nodeDefinitionMapping: Record<string, CatalaGrammarTypes[]> = {
     enum_struct_name: ['struct_decl'],
     field_name: ['struct_decl'],
-    scope: ['struct_decl'],
-    scope_decl: ['struct_decl'],
+    scope: ['scope_decl', 'struct_decl'],
+    scope_decl: ['scope', 'struct_decl'],
     scope_name: ['scope', 'scope_decl'],
-    struct_decl: ['ALL'], // empty array means allow, all
+    struct_decl: ['enum_struct_name', 'struct_decl_item'],
+    struct_decl_item: ['enum_struct_name'],
     variable: ['scope', 'scope_decl'],
     verb_block: ['struct_decl'],
     '': [] as CatalaGrammarTypes[],
@@ -72,12 +73,12 @@ function filterByPositionInTree(
     if (!current) return false;
     if (current.length === 0) return false;
     const farthest = [...current].pop();
-    const mapToFarthest = nodeDefinitionMapping[farthest ?? ''];
     const mapToCurrent = nodeDefinitionMapping[node.type ?? ''];
-    const mapTo = mergeArrays(mapToFarthest, mapToCurrent);
-
-    const isAll = mapTo.includes('ALL');
-    if (isAll) return true;
+    /* prettier-ignore */ console.log('mapToCurrent', mapToCurrent);
+    const mapToFarthest = nodeDefinitionMapping[farthest ?? ''];
+    /* prettier-ignore */ console.log('mapToFarthest', mapToFarthest);
+    const mapTo = intersectArrays(mapToFarthest, mapToCurrent);
+    /* prettier-ignore */ console.log('mapTo', mapTo);
 
     const okay = mapTo?.find((mappingElement) =>
       maybeNode.ascendantTypesPath.includes(mappingElement)

@@ -31,6 +31,48 @@ export function getClosestAscendantOfTypes(
   return getClosestAscendantOfTypes(node.parent, types);
 }
 
+const maybe = ['param_decl', 'params_decl', 'scope_var'];
+const skip = [
+  'qfield',
+  'qscope',
+  'struct_content_field',
+  'struct_content_fields',
+  'fun_argument',
+  'fun_arguments',
+  'e_variable',
+  'e_struct',
+  'e_scope_apply',
+  'e_apply',
+  'e_fieldaccess',
+  'e_ifthenelse',
+  'e_binop',
+  'tuple_contents',
+  'e_tuple',
+  'expression',
+  'rule_parameters',
+  'qenum_struct',
+  'primitive_typ',
+  'typ',
+];
+const skips = skip.concat(maybe);
+export function getAscendantTypesUntilSourceFile(
+  node: SyntaxNode | undefined,
+  ascendantTypes: CatalaGrammarTypes[]
+): CatalaGrammarTypes[] {
+  if (!node) return ascendantTypes;
+  if (node.parent === null) return ascendantTypes;
+  // if (node.parent.type === 'source_file') return ascendantTypes;
+  if (node.parent.type === 'code_block') return ascendantTypes;
+
+  const targetType = node.parent.type as CatalaGrammarTypes;
+  if (skips.includes(targetType)) {
+    return getAscendantTypesUntilSourceFile(node.parent, ascendantTypes);
+  }
+
+  ascendantTypes.push(node.parent.type as CatalaGrammarTypes);
+  return getAscendantTypesUntilSourceFile(node.parent, ascendantTypes);
+}
+
 export function getTypeFromClosestAscendantOfTypes(
   node: SyntaxNode | undefined,
   types: CatalaGrammarTypes[]

@@ -1,18 +1,5 @@
 ```catala
-declaration scope Test5:
-  internal individual content Individual
-  internal normal_income_tax_computation_applies content boolean
-  output income_tax content money
-
-scope Test5:
-  definition normal_income_tax_computation_applies equals true
-  definition individual equals Individual {
-    -- income: $7,000
-    -- number_of_children: 7
-  }
-  definition income_tax equals
-    if normal_income_tax_computation_applies then
-      (output of NewIncomeTaxComputationFixed with
-        { -- individual: individual }).income_tax
-    else $0 # Insert some other modes of computation here
+scope Test1:
+  definition income_tax equals tax_computation.income_tax
+  assertion income_tax = $72,000
 ```

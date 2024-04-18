@@ -2,11 +2,17 @@ import { readFileSync } from 'fs';
 import * as path from 'path';
 
 export const TEST_FILE_NAMES = [
-  'combination_declStruct_declScope_scope',
+  'allSyntax',
+  'cli',
+  'combination_1structDecl_1scopeDecl',
+  'combination_1structDecl_1scopeDecl_1scope',
+  'combination_1structDecl_2scopeDecl',
+  'definition_fieldName',
+  'definition_fieldName_variable',
   'scope_and_definition',
   'scope_decl',
   'struct_decl',
-  'struct_decl_with_1_field',
+  'struct_decl_1field',
 ] as const;
 export type FixtureFiles = typeof TEST_FILE_NAMES[number];
 

@@ -10,12 +10,6 @@ export interface CatalaSyntaxNode extends Parser.SyntaxNode {
   children: CatalaSyntaxNode[];
   nextSibling: CatalaSyntaxNode;
   parent: CatalaSyntaxNode;
-  /**
-   *
-   * Note, that this is not the immediate parent like `parent`,
-   * instead, this is the parent
-   */
-  enclosingBlockType: CatalaGrammarTypes | undefined;
   ascendantTypesPath: CatalaGrammarTypes[];
 }
 
@@ -48,6 +42,7 @@ export interface CatalaDeclaration {
 
 export interface CatalaFileParsed {
   error: CatalaSyntaxNode[];
+  constructor_name: CatalaSyntaxNode[];
   enum_struct_name: CatalaSyntaxNode[];
   field_name: CatalaSyntaxNode[];
   scope_name: CatalaSyntaxNode[];

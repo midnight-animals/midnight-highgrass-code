@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+
+
+
+/////////////////////////////////////
+/////////////////////////////////////
+
+refac file parser and compare against this snapshot
+```bash
+    const collectedTypes = [];
+    getAscendantTypesUntilSourceFile(node, collectedTypes);
+    if (collectedTypes.length > 2) {
+      /* prettier-ignore */ console.log('%c------------------------------------------------------------------------------------------', `background: ${'darkblue'}`);
+      node.type; /*?*/
+      collectedTypes; /*?*/
+    }
+```
+
+/////////////////////////////////////
+/////////////////////////////////////
+
+exports[`Node Mapping Node Mapping 1`] = `
+{
+  "constructor_name": [
+    [
+      "enum_decl_item",
+      "enum_decl",
+    ],
+  ],
+  "enum_struct_name": [
+    [
+      "struct_decl",
+    ],
+    [
+      "enum_decl",
+    ],
+    [
+      "scope_decl_item",
+      "scope_decl",
+    ],
+    [
+      "definition",
+      "scope",
+    ],
+  ],
+  "error": [],
+  "field_name": [
+    [
+      "struct_decl_item",
+      "struct_decl",
+    ],
+    [
+      "definition",
+      "scope",
+    ],
+  ],
+  "scope_name": [
+    [
+      "scope_decl",
+    ],
+    [
+      "scope",
+    ],
+    [
+      "scope_decl_item",
+      "scope_decl",
+    ],
+  ],
+  "variable": [
+    [
+      "scope_decl_item",
+      "scope_decl",
+    ],
+    [
+      "definition",
+      "scope",
+    ],
+    [
+      "rule",
+      "scope",
+    ],
+    [],
+  ],
+  "verb_block": [],
+}
+`;

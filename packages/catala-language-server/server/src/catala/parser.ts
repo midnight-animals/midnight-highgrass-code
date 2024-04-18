@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as Parser from 'tree-sitter';
-import * as Catala from '/home/user/dev/projects/tree-sitter/tree-sitter-catala/bindings/node/index.js';
-// import * as Catala from '../catala/tree-sitter/bindings/node';
+// import * as Catala from '/home/user/dev/projects/tree-sitter/tree-sitter-catala/bindings/node/index.js';
+import * as Catala from '../catala/tree-sitter/bindings/node';
 import {
   CatalaFileParsed,
   CatalaGrammarTypes,
@@ -10,9 +10,14 @@ import {
 } from '../shared/CatalaTypes';
 import {
   getAscendantNodeTypesPath,
+  getAscendantTypesUntilSourceFile,
   getClosestAscendantOfTypes,
   getTypeFromClosestAscendantOfTypes,
 } from './tree-sitter-focus/tree-sitter-modules';
+import {
+  areArraysEqual,
+  arrayAlreadyIncludesArray,
+} from '../shared/arrayUtils';
 
 export async function parse(text: string): Promise<CatalaFileParsed> {
   const parser = new Parser();
@@ -20,6 +25,7 @@ export async function parse(text: string): Promise<CatalaFileParsed> {
   const tree = parser.parse(text);
   const catalaFile: CatalaFileParsed = {
     error: [],
+    constructor_name: [],
     enum_struct_name: [],
     field_name: [],
     scope_name: [],
@@ -45,11 +51,37 @@ function walkRecursive(
     catalaFile.error.push(catalaSyntaxNode);
   }
 
-  if (node.type === 'enum_struct_name') {
+  if (node.type === 'constructor_name') {
+    const collectedTypes = [];
+    getAscendantTypesUntilSourceFile(node, collectedTypes);
+    if (collectedTypes.length > 2) {
+      /* prettier-ignore */ console.log('%c------------------------------------------------------------------------------------------', `background: ${'darkblue'}`);
+      node.type; /*?*/
+      collectedTypes; /*?*/
+    }
+
+    const parentTypes: CatalaGrammarTypes[] = ['enum_decl_item'];
+    const grandParentTypes: CatalaGrammarTypes[] = ['enum_decl'];
+    const ascendantTypesPath = getAscendantNodeTypesPath(
+      node,
+      parentTypes,
+      grandParentTypes
+    );
+    catalaSyntaxNode.ascendantTypesPath = ascendantTypesPath;
+    catalaFile.constructor_name.push(catalaSyntaxNode);
+  } else if (node.type === 'enum_struct_name') {
+    const collectedTypes = [];
+    getAscendantTypesUntilSourceFile(node, collectedTypes);
+    if (collectedTypes.length > 2) {
+      /* prettier-ignore */ console.log('%c------------------------------------------------------------------------------------------', `background: ${'darkblue'}`);
+      node.type; /*?*/
+      collectedTypes; /*?*/
+    }
+
     const parentTypes: CatalaGrammarTypes[] = [
       'definition',
+      'enum_decl',
       'struct_decl',
-      'struct_decl_item',
       'scope_decl_item',
     ];
     const grandParentTypes: CatalaGrammarTypes[] = ['scope', 'scope_decl'];
@@ -61,6 +93,14 @@ function walkRecursive(
     catalaSyntaxNode.ascendantTypesPath = ascendantTypesPath;
     catalaFile.enum_struct_name.push(catalaSyntaxNode);
   } else if (node.type === 'field_name') {
+    const collectedTypes = [];
+    getAscendantTypesUntilSourceFile(node, collectedTypes);
+    if (collectedTypes.length > 2) {
+      /* prettier-ignore */ console.log('%c------------------------------------------------------------------------------------------', `background: ${'darkblue'}`);
+      node.type; /*?*/
+      collectedTypes; /*?*/
+    }
+
     const parentTypes: CatalaGrammarTypes[] = [
       'definition',
       'struct_decl',
@@ -77,19 +117,42 @@ function walkRecursive(
       grandParentTypes
     );
     catalaSyntaxNode.ascendantTypesPath = ascendantTypesPath;
-    catalaSyntaxNode.enclosingBlockType = getTypeFromClosestAscendantOfTypes(
-      node,
-      ['scope', 'scope_decl', 'struct_decl']
-    );
     catalaFile.field_name.push(catalaSyntaxNode);
   } else if (node.type === 'scope_name') {
-    catalaSyntaxNode.enclosingBlockType = getTypeFromClosestAscendantOfTypes(
+    const collectedTypes = [];
+    getAscendantTypesUntilSourceFile(node, collectedTypes);
+    if (collectedTypes.length > 2) {
+      /* prettier-ignore */ console.log('%c------------------------------------------------------------------------------------------', `background: ${'darkblue'}`);
+      node.type; /*?*/
+      collectedTypes; /*?*/
+    }
+
+    const parentTypes: CatalaGrammarTypes[] = [
+      'scope_decl_item',
+      'scope',
+      'scope_decl',
+    ];
+    const grandParentTypes: CatalaGrammarTypes[] = ['scope', 'scope_decl'];
+    const ascendantTypesPath = getAscendantNodeTypesPath(
       node,
-      ['scope', 'scope_decl']
+      parentTypes,
+      grandParentTypes
     );
+    catalaSyntaxNode.ascendantTypesPath = ascendantTypesPath;
     catalaFile.scope_name.push(catalaSyntaxNode);
   } else if (node.type === 'variable') {
-    const parentTypes: CatalaGrammarTypes[] = ['definition', 'scope_decl_item'];
+    const collectedTypes = [];
+    getAscendantTypesUntilSourceFile(node, collectedTypes);
+    /* prettier-ignore */ console.log('%c------------------------------------------------------------------------------------------', `background: ${'darkblue'}`);
+    node.type; /*?*/
+    collectedTypes; /*?*/
+
+    const parentTypes: CatalaGrammarTypes[] = [
+      'assertion',
+      'definition',
+      'rule',
+      'scope_decl_item',
+    ];
     const grandParentTypes: CatalaGrammarTypes[] = ['scope', 'scope_decl'];
     const ascendantTypesPath = getAscendantNodeTypesPath(
       node,
@@ -100,6 +163,14 @@ function walkRecursive(
     catalaSyntaxNode.ascendantTypesPath = ascendantTypesPath;
     catalaFile.variable.push(catalaSyntaxNode);
   } else if (node.type === 'verb_block') {
+    const collectedTypes = [];
+    getAscendantTypesUntilSourceFile(node, collectedTypes);
+    if (collectedTypes.length > 2) {
+      /* prettier-ignore */ console.log('%c------------------------------------------------------------------------------------------', `background: ${'darkblue'}`);
+      node.type; /*?*/
+      collectedTypes; /*?*/
+    }
+
     const parentTypes: CatalaGrammarTypes[] = ['definition', 'scope_decl_item'];
     const grandParentTypes: CatalaGrammarTypes[] = ['scope', 'scope_decl'];
     const ascendantTypesPath = getAscendantNodeTypesPath(
@@ -126,11 +197,25 @@ const content = fs.readFileSync(
 
 async function main() {
   const result = await parse(content).catch((err) => console.error(err));
-  const { declarations, fields } = result as any;
-  const print = {
-    declarations,
-    fields,
-  };
-  // print; /*?*/
+  const { tree, ...parsed } = result as any;
+
+  const map: Record<string, CatalaGrammarTypes[][]> = {};
+  Object.entries(parsed).forEach(([key, value]) => {
+    map[key] = [];
+    parsed[key].forEach((node: CatalaSyntaxNode) => {
+      if (arrayAlreadyIncludesArray(map[key], node.ascendantTypesPath)) return;
+
+      if (node.ascendantTypesPath.length === 0) {
+        node.ascendantTypesPath; /*?*/
+        node.parent.parent.text; /*?*/
+        node.text; /*?*/
+      }
+
+      map[key].push(node.ascendantTypesPath);
+    });
+  });
+
+  map; /*?*/
+  // parsed.enum_struct_name[0].ascendantTypesPath; /*?*/
 }
 main();
