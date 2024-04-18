@@ -121,9 +121,41 @@ namespace online_dictionary.Services
 
         public async Task AddManyWordEntryAsync(List<WordEntry> wordEntries)
         {
-            foreach (WordEntry wordEntry in wordEntries)
+            // Start SQL Server transaction
+            using (var sqlTransaction = await _sqlContext.Database.BeginTransactionAsync())
             {
-                await AddWordEntryAsync(wordEntry);
+                try
+                {
+                    List<string> objectIds;
+                    try
+                    {
+                        // Save data to MongoDB
+                        await _wordEntriesCollection.InsertManyAsync(wordEntries);
+                        objectIds = wordEntries.Select(w => w.Id).ToList();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
+                    }
+
+                    List<WordSQL> wordSQLs = new List<WordSQL>();
+                    foreach (string id in objectIds)
+                    {
+                        wordSQLs.Add(new WordSQL { Id = id });
+                    }
+                    // Save data to SQL Server
+                    _sqlContext.WordSQLs.AddRange(wordSQLs);
+                    await _sqlContext.SaveChangesAsync();
+
+                    // Commit SQL Server transaction
+                    await sqlTransaction.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    // Roll back SQL Server transaction on error
+                    await sqlTransaction.RollbackAsync();
+                    throw ex;
+                }
             }
         }
 
@@ -179,9 +211,43 @@ namespace online_dictionary.Services
         }
         public async Task DeleteManyWordEntriesAsync(List<WordEntry> wordEntries)
         {
-            foreach (WordEntry wordEntry in wordEntries)
+            // Start SQL Server transaction
+            using (var sqlTransaction = await _sqlContext.Database.BeginTransactionAsync())
             {
-                await DeleteWordEntryAsync(wordEntry);
+                try
+                {
+                    List<string> objectIds = wordEntries.Select(w => w.Id).ToList();
+
+                    List<WordSQL> wordSQLs = await _sqlContext.WordSQLs
+                        .Where(ws => objectIds.Contains(ws.Id))
+                        .ToListAsync();
+                    _sqlContext.RemoveRange(wordSQLs);
+                    // Save data to SQL Server
+                    await _sqlContext.SaveChangesAsync();
+
+                    try
+                    {
+                        // Create a filter to match WordEntry documents by their IDs
+                        var filter = Builders<WordEntry>.Filter.In(we => we.Id, objectIds);
+                        // Delete WordEntry documents matching the filter
+                        await _wordEntriesCollection.DeleteManyAsync(filter);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle exceptions
+                        Console.WriteLine($"Error deleting WordEntry documents: {ex.Message}");
+                        throw ex;
+                    }
+
+                    // Commit SQL Server transaction
+                    await sqlTransaction.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    // Roll back SQL Server transaction on error
+                    await sqlTransaction.RollbackAsync();
+                    throw ex;
+                }
             }
         }
         public async Task DeleteWordEntryAsync(WordEntry wordEntry)

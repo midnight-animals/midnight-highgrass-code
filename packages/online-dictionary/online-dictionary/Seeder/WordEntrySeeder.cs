@@ -30,6 +30,7 @@ namespace online_dictionary.Seeder
 		{
 			try
 			{
+				Console.WriteLine("Seeding " + count + " words");
 				// Clean up old fake data
 				await _wordEntryService.DeleteManyWordEntriesAsync(await _wordEntryCollection.Find(_ => true).ToListAsync());
 
@@ -51,7 +52,8 @@ namespace online_dictionary.Seeder
 		{
 			try
 			{
-				var jsonString = await File.ReadAllTextAsync(filePath);
+                Console.WriteLine("Importing from " + filePath + " file");
+                var jsonString = await File.ReadAllTextAsync(filePath);
 				var data = JsonConvert.DeserializeObject<WordDefinitionJson>(jsonString);
 				var wordEntries = CleanDuplicate(data.Data);
 				// Clean up old data

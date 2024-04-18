@@ -34,17 +34,18 @@ services:
       - mongodb_network
 
   sql-server:
-    image: mcr.microsoft.com/mssql/server:latest
+    image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: sql-server
     hostname: "sqlserver"
+    user: root
     environment:
       SA_PASSWORD: "0nline!Dictionary"
       ACCEPT_EULA: "Y"
     ports:
       - "1433:1433"
     volumes:
-      - sql_data:/var/opt/data
-      - sql_log:/var/opt/data/log
+      - sql_data:/var/opt/mssql/data/
+      # - sql_log:/var/opt/mssql/log/
     networks:
       - mongodb_network
 
@@ -55,4 +56,4 @@ networks:
 volumes:
   mongodb_data:
   sql_data:
-  sql_log:
+  # sql_log:
