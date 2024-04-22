@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using online_dictionary.Data;
+using online_dictionary.Services;
+using System.ComponentModel.DataAnnotations;
 
 namespace online_dictionary.Models
 {
@@ -8,14 +11,16 @@ namespace online_dictionary.Models
         [Required]
         public string DisplayName { get; set; } = null!;
         [Required]
-        public string Username { get; set; } = null!;
+        
+		public string Username { get; set; } = null!;
         [Required]
-        public string Email { get; set; } = null!;
-        public string? PasswordHash { get; set; }
+		public string Email { get; set; } = null!;
+		public string? PasswordHash { get; set; }
         public string? GoogleId { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public ICollection<Comment>? Comments { get; set; }
 
     }
+	
 }

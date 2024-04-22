@@ -158,7 +158,6 @@ namespace online_dictionary.Services
                 }
             }
         }
-
         public async Task AddWordEntryAsync(WordEntry wordEntry)
         {
             var policy = Policy
@@ -200,7 +199,6 @@ namespace online_dictionary.Services
                 }
             });
         }
-
         public async Task UpdateWordEntryAsync(WordEntry oldWordEntry, WordEntry newWordEntry)
         {
             // Ensure that the word ID remains unchanged

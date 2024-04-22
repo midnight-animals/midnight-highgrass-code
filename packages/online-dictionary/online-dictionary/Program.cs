@@ -23,7 +23,7 @@ using (var scope = app.Services.CreateScope())
     var dataSeeder = services.GetRequiredService<IWordEntrySeeder>(); // Assuming you have registered IDataSeeder in ConfigureServices
 
     //await dataSeeder.Seed(100);
-    await dataSeeder.Import(@"words_definitions.json");
+    //await dataSeeder.Import(@"words_definitions.json");
 }
 
 // Configure the HTTP request pipeline.
@@ -63,8 +63,10 @@ void ConfigureEnvVariables()
 }
 void ConfigureServices (IServiceCollection services)
 {
+    services.AddAutoMapper(typeof(Program).Assembly);
     services.AddScoped<IWordEntryService, WordEntryService>();
-    services.AddScoped<IWordEntrySeeder, WordEntrySeeder>();
+    services.AddScoped<IUserService, UserService>();
+	services.AddScoped<IWordEntrySeeder, WordEntrySeeder>();
     services.AddDbContext<OnlineDictionaryContext>(options =>
     {
         options.UseSqlServer(Environment.GetEnvironmentVariable("SQLSERVER_CONNECTION_URI"));
