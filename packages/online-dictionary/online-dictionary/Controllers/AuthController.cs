@@ -26,9 +26,27 @@ namespace online_dictionary.Controllers
                 return Ok(_mapper.Map<UserDto>(user));
             } catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.ToString());
                 return StatusCode(500, "An error occurred while processing your request.");
 			}
 		}
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
+        {
+            try
+            {
+                User? user = await _userService.LoginUserAsync(loginRequest);
+                if (user == null)
+                {
+                    return BadRequest("Login failed");
+                }
+                return Ok(user);
+            } catch (Exception ex)
+            {
+                Console.WriteLine($"Error {ex.ToString()}");
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
     }
 }

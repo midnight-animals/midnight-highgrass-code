@@ -3,19 +3,16 @@
 @{
 	ViewData["Title"] = "Signin";
 }
+
 <div id="sign-in">
 	<h1>Sign in</h1>
-	<hr />
-	<form class="sign-in-form">
-		<label for="displayName">Display Name:</label>
-		<input type="text" v-model="displayName" required />
-		<label for="displayName">Username:</label>
-		<input type="text" v-model="username" required />
-		<label for="email">Email:</label>
-		<input type="email" v-model="email" required />
-		<label for="password">Password:</label>
-		<input type="password" v-model="password" required />
-		<button type="submit">Register</button>
+	<hr/>
+	<form id="sign-in-form">
+		<label for="usernameOrEmail">Username or Email</label>
+		<input type="text" v-model="usernameOrEmail" required/>
+		<label for="password">Password</label>
+		<input type="password" v-model="password" required/>
+		<button type="submit">Login</button>
 	</form>
 </div>
 
@@ -24,7 +21,7 @@
 		font-size: 2.5rem
 	}
 
-	.sign-in-form {
+	#sign-in-form {
 		display: flex;
 		flex-direction: column;
 		max-width: 20rem;
@@ -34,45 +31,42 @@
 	const app = Vue.createApp({
 		data() {
 			return {
-				displayName: '',
-				username: '',
-				email: '',
-				password: ''
-			};
+				usernameOrEmail: "",
+				password: "",
+			}
 		},
 		mounted() {
-			const form = document.getElementById('sign-in');
-			form.addEventListener('submit', this.registerUser);
+			const form = document.getElementById('sign-in-form');
+			form.addEventListener('submit', this.loginUser);
 		},
 		methods: {
-			async registerUser(event) {
+			async loginUser(event) {
 				event.preventDefault();
 				try {
-					const response = await fetch('/api/auth/register', {
+					const response = await fetch('/api/auth/login', {
 						method: 'POST',
 						headers: {
-							'Content-Type': 'application/json'
+							"Content-Type": "application/json"
 						},
 						body: JSON.stringify({
-							displayName: this.displayName,
-							username: this.username,
-							email: this.email,
-							password: this.password
+							usernameOrEmail: this.usernameOrEmail,
+							password: this.password,
 						})
-					});
-					if (!response.ok) {
-						throw new Error(response);
-					}
+					})
+
+					if (!response.ok) throw new Error(response);
+
 					const data = await response.json();
-					alert("Signed up successful. Please Login now");
-					console.log(data); // Handle response data as needed
+					console.log(data);
+					alert("Logged in successful. Redirecting");
+					window.location.href = "/";
 				} catch (error) {
-					console.log(error);
-					alert('An error occurred while signing up. Please try again later.');
+					console.error(error);
+					alert('An error occurred while signing in. Please try again later.')
 				}
 			}
 		}
-	});	
+	})
 
-	app.mount('#sign-in');
+	app.mount('#sign-in')
 </script>

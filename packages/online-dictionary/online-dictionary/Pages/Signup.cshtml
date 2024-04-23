@@ -1,0 +1,78 @@
+﻿@page
+@model online_dictionary.Pages.SignupModel
+@{
+	ViewData["Title"] = "Signup";
+}
+<div id="sign-up">
+	<h1>Sign up</h1>
+	<hr />
+	<form id="sign-up-form">
+		<label for="displayName">Display Name:</label>
+		<input type="text" v-model="displayName" required />
+		<label for="displayName">Username:</label>
+		<input type="text" v-model="username" required />
+		<label for="email">Email:</label>
+		<input type="email" v-model="email" required />
+		<label for="password">Password:</label>
+		<input type="password" v-model="password" required />
+		<button type="submit">Register</button>
+	</form>
+</div>
+
+<style>
+	h1 {
+		font-size: 2.5rem
+	}
+
+	#sign-up-form {
+		display: flex;
+		flex-direction: column;
+		max-width: 20rem;
+	}
+</style>
+<script>
+	const app = Vue.createApp({
+		data() {
+			return {
+				displayName: '',
+				username: '',
+				email: '',
+				password: ''
+			};
+		},
+		mounted() {
+			const form = document.getElementById('sign-up-form');
+			form.addEventListener('submit', this.registerUser);
+		},
+		methods: {
+			async registerUser(event) {
+				event.preventDefault();
+				try {
+					const response = await fetch('/api/auth/register', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							displayName: this.displayName,
+							username: this.username,
+							email: this.email,
+							password: this.password
+						})
+					});
+					if (!response.ok) {
+						throw new Error(response);
+					}
+					const data = await response.json();
+					alert("Signed up successful. Please Login now");
+					console.log(data); // Handle response data as needed
+				} catch (error) {
+					console.log(error);
+					alert('An error occurred while signing up. Please try again later.');
+				}
+			}
+		}
+	});	
+
+	app.mount('#sign-up');
+</script>
