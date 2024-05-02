@@ -3,6 +3,7 @@ using online_dictionary.Data;
 using online_dictionary.Models;
 using online_dictionary.DTOs;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace online_dictionary.Services
 {
@@ -21,6 +22,8 @@ namespace online_dictionary.Services
             _sqlContext = context;
             _mapper = mapper;
         }
+        //To-do: using RegisterRequest and LoginRequest parameter for services layer might be
+        //A bad idea. Change that when you have time
         public async Task<User> RegisterUserAsync(RegisterRequest registerRequest)
         {
             User user = _mapper.Map<User>(registerRequest);
@@ -32,10 +35,9 @@ namespace online_dictionary.Services
         }
         public async Task<User?> LoginUserAsync(LoginRequest loginRequest) {
             string usernameOrEmail = loginRequest.UsernameOrEmail.ToString();
-            Console.WriteLine(usernameOrEmail);
-            User userToCheck = _sqlContext.Users
-                .Where(user => user.Username == usernameOrEmail || user.Email == usernameOrEmail)
-                .FirstOrDefault();
+            User? userToCheck = await _sqlContext.Users
+                .FirstOrDefaultAsync(user => user.Username == usernameOrEmail || user.Email == usernameOrEmail);
+
             if (userToCheck == null)
             {
                 return null;

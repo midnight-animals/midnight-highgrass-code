@@ -34,7 +34,7 @@ Linux:
 ```.NET CLI
 dotnet dev-certs https -ep ${HOME}/.aspnet/https/aspnetapp.pfx -p password1
 ```
-For more information go to [Hosting ASP.NET Core images with Docker Compose over HTTPS](https://learn.microsoft.com/en-us/aspnet/core/security/docker-compose-https?view=aspnetcore-8.0)
+For more information, go to [Hosting ASP.NET Core images with Docker Compose over HTTPS](https://learn.microsoft.com/en-us/aspnet/core/security/docker-compose-https?view=aspnetcore-8.0)
 
 5. Run Docker Compose to build and start the application:
 ```
