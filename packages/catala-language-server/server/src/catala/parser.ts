@@ -52,7 +52,7 @@ function walkRecursive(
   }
 
   if (node.type === 'constructor_name') {
-    const collectedTypes = [];
+    const collectedTypes: CatalaGrammarTypes[] = [];
     getAscendantTypesUntilSourceFile(node, collectedTypes);
     if (collectedTypes.length > 2) {
       /* prettier-ignore */ console.log('%c------------------------------------------------------------------------------------------', `background: ${'darkblue'}`);
@@ -70,7 +70,7 @@ function walkRecursive(
     catalaSyntaxNode.ascendantTypesPath = ascendantTypesPath;
     catalaFile.constructor_name.push(catalaSyntaxNode);
   } else if (node.type === 'enum_struct_name') {
-    const collectedTypes = [];
+    const collectedTypes: CatalaGrammarTypes[] = [];
     getAscendantTypesUntilSourceFile(node, collectedTypes);
     if (collectedTypes.length > 2) {
       /* prettier-ignore */ console.log('%c------------------------------------------------------------------------------------------', `background: ${'darkblue'}`);
@@ -93,7 +93,7 @@ function walkRecursive(
     catalaSyntaxNode.ascendantTypesPath = ascendantTypesPath;
     catalaFile.enum_struct_name.push(catalaSyntaxNode);
   } else if (node.type === 'field_name') {
-    const collectedTypes = [];
+    const collectedTypes: CatalaGrammarTypes[] = [];
     getAscendantTypesUntilSourceFile(node, collectedTypes);
     if (collectedTypes.length > 2) {
       /* prettier-ignore */ console.log('%c------------------------------------------------------------------------------------------', `background: ${'darkblue'}`);
@@ -119,7 +119,7 @@ function walkRecursive(
     catalaSyntaxNode.ascendantTypesPath = ascendantTypesPath;
     catalaFile.field_name.push(catalaSyntaxNode);
   } else if (node.type === 'scope_name') {
-    const collectedTypes = [];
+    const collectedTypes: CatalaGrammarTypes[] = [];
     getAscendantTypesUntilSourceFile(node, collectedTypes);
     if (collectedTypes.length > 2) {
       /* prettier-ignore */ console.log('%c------------------------------------------------------------------------------------------', `background: ${'darkblue'}`);
@@ -141,7 +141,7 @@ function walkRecursive(
     catalaSyntaxNode.ascendantTypesPath = ascendantTypesPath;
     catalaFile.scope_name.push(catalaSyntaxNode);
   } else if (node.type === 'variable') {
-    const collectedTypes = [];
+    const collectedTypes: CatalaGrammarTypes[] = [];
     getAscendantTypesUntilSourceFile(node, collectedTypes);
     /* prettier-ignore */ console.log('%c------------------------------------------------------------------------------------------', `background: ${'darkblue'}`);
     node.type; /*?*/
@@ -163,7 +163,7 @@ function walkRecursive(
     catalaSyntaxNode.ascendantTypesPath = ascendantTypesPath;
     catalaFile.variable.push(catalaSyntaxNode);
   } else if (node.type === 'verb_block') {
-    const collectedTypes = [];
+    const collectedTypes: CatalaGrammarTypes[] = [];
     getAscendantTypesUntilSourceFile(node, collectedTypes);
     if (collectedTypes.length > 2) {
       /* prettier-ignore */ console.log('%c------------------------------------------------------------------------------------------', `background: ${'darkblue'}`);
