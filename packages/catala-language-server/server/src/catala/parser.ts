@@ -2,7 +2,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as Parser from 'tree-sitter';
 // import * as Catala from '/home/user/dev/projects/tree-sitter/tree-sitter-catala/bindings/node/index.js';
-import * as Catala from '../catala/tree-sitter/bindings/node';
+import * as Catala from '/home/user/dev/repos/tree-sitter-grammar/tree-sitter-catala/bindings/node/index.js';
+// import * as Catala from '../catala/tree-sitter/bindings/node';
 import {
   CatalaFileParsed,
   CatalaGrammarTypes,
